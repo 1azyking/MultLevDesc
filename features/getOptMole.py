@@ -2,19 +2,18 @@ import os
 import sys
 import method
 import elementInfo
+import shutil
 import numpy as np
 
-#从Gaussian输出文件中直接获取优化后的结构
+# Obtain optimized structures directly from Gaussian output files
 def getOptMoleFromOutFiles():
 
-    #获取所有元素信息
     listElementInfo = elementInfo.readAllElementInfo()
 
     strTZVPD = "@/public4/home/sc55809/mySoft/basisset/def2-TZVPD/X.gbs"
 
-    #选择out文件所在目录
-    strOutPath = "D:/Data/"
-    #遍历文件夹中所有文件
+    #Select the directory where the .out files are located
+    strOutPath = "PATH/TO/YOUR/OUT/FILES"
     listfile = os.listdir(strOutPath)
     for curFile in listfile:
         curFile = strOutPath + curFile
@@ -28,7 +27,7 @@ def getOptMoleFromOutFiles():
         strnewFile = curFile.replace("out","new")
         newFile = open(strnewFile,"a+")
 
-        #将gjf文件的title写入new，同时存储所有原子名称
+        #Write the title of the gjf file to new, while storing all atom names
         ntitleNum = 7
         listAtoms = []
         nIndex = 0
@@ -54,7 +53,6 @@ def getOptMoleFromOutFiles():
                 else:
                     break
 
-        #首先从out中获取最后一个Input orientation:
         nIndex = 0
         nStartLine = 0
         outFile.seek(0,0)
@@ -83,7 +81,6 @@ def getOptMoleFromOutFiles():
                 strCoord = listInfos[3] + "    " + listInfos[4] + "    " + listInfos[5]
                 listAtomCoords.append(strCoord)
 
-        #向new文件中写入原子和坐标
         nIndex = 0
         for curAtom in listAtoms:
             strLine = curAtom + "               "
@@ -92,7 +89,6 @@ def getOptMoleFromOutFiles():
             newFile.write(strLine)
             newFile.write("\n")
 
-        #写入gjf文件中剩余部分
         nIndex = 0
         gjfFile.seek(0,0)
         nStartLine = ntitleNum+len(listAtoms)
@@ -106,9 +102,6 @@ def getOptMoleFromOutFiles():
 
         newFile.write("\n")
 
-        #添加Polar计算的部分
-
-        #获取所有的元素
         newFile.write("532nm 1064nm 10600nm\n")
         newFile.write("\n")
         dictElements = {}
@@ -125,11 +118,10 @@ def getOptMoleFromOutFiles():
         gjfFile.close()
         newFile.close()
 
-#从qm4d的QM输入文件中读取原子坐标
+#Reading atomic coordinates from QM input file of qm4d
 def getAtomPositions():
 
-    #选择out文件所在目录
-    strOutPath = "D:/New-cation/"
+    strOutPath = "PATH/TO/YOUR/OUT/FILES"
     strOutFile = strOutPath + "result.csv"
     outFile = open(strOutFile,"a+")
 
@@ -156,37 +148,29 @@ def getAtomPositions():
 
     outFile.close()
 
-#改名
+#Rename
 def renameTogjf():
-    #选择out文件所在目录
-    strOutPath = "D:/New-cation/"
-    #遍历文件夹中所有文件
+    strOutPath = "PATH/TO/YOUR/OUT/FILES"
     listfile = os.listdir(strOutPath)
     for curFile in listfile:
         curFile = strOutPath + curFile
         strgjfFile = curFile.replace(".new",".gjf")
         os.rename(curFile,strgjfFile)
 
-#改名
 def renameTo():
-    #选择out文件所在目录
-    strOutPath = "D:/Data/"
-    #遍历文件夹中所有文件
+    strOutPath = "PATH/TO/YOUR/OUT/FILES"
     listfile = os.listdir(strOutPath)
     for curFile in listfile:
         curFile = strOutPath + curFile
         strgjfFile = curFile.replace(".new",".gjf")
         os.rename(curFile,strgjfFile)
 
-#根据txt复制文件
-import shutil
 def copyFiles():
-    #选择out文件所在目录
-    strInPath = "D:/Data/cif/"
-    strOutPath = "D:/Data/new/"
+    strInPath = "PATH/TO/YOUR/CIF/FILES"
+    strOutPath = "PATH/TO/NEW/FILES"
 
     listFileNames = []
-    strFilePath = "D:/Data/needCopy.txt"
+    strFilePath = "PATH/TO/needCopy.txt"
     file = open(strFilePath,"r")
     while 1:
         strLine = file.readline()
@@ -195,21 +179,18 @@ def copyFiles():
 
         listFileNames.append(strLine.strip())
 
-    #遍历文件夹中所有文件
     for curFile in listFileNames:
         strInFile = strInPath + curFile + ".cif"
         strOutFile = strOutPath + curFile + ".cif"
         shutil.copyfile(strInFile, strOutFile)
 
 
-#从文本中读取一些信息
 def getInformation():
 
-    #选择out文件所在目录
-    strPath = "D:/Data/new/"
+    strPath = "PATH/TO/YOUR/OUT/FILES"
     listCifFiles = os.listdir(strPath)
 
-    #根据系统获得编码方式
+    #Obtain related coding method based on the system
     strCodeType = "utf-8"
     sysType = sys.platform
     if sysType == "Windows":
@@ -223,15 +204,14 @@ def getInformation():
         strFileName = curFile.strip(".cif")
         listCurInfo.append(strFileName)
         curFile = strPath + curFile
-        # 使用utf-8，否则会报错'gbk' codec can't decode byte 0xa9 in
-        # 也可以事先将文件转为ANSI,linux默认是utf-8,windows默认gbk
+        # Use utf-8, otherwise it will report error 'gbk' codec can't decode byte 0xa9 in
+        # You can also convert the file to ANSI beforehand, linux defaults to utf-8, windows defaults to gbk.
         file = open(curFile,"r",encoding=strCodeType)
         while 1:
             strLine = file.readline()
             if not strLine:
                 break
 
-            #处理多个空格分隔的情况
             strLine = ' '.join(strLine.split())
             if '_space_group_IT_number' in strLine:
                 arrTmpInfo = strLine.split()
@@ -245,8 +225,8 @@ def getInformation():
             listInfos.append(listCurInfo)
 
 
-    #写入输出文件
-    strOutFile = "D:/Data/new.csv"
+    #Write the output file(new.csv)
+    strOutFile = "PATH/TO/SAVE/new.csv"
     file = open(strOutFile,"a+")
     for item in listInfos:
         file.write(",".join(item))
@@ -255,11 +235,10 @@ def getInformation():
     file.close()
 
 
-#格式化输，从csv读入二维数组。按行优先形式每隔多少个输出一行
 def FormatOutput():
 
-    strInputPsfFile = "D:/11.csv"
-    strOutPsfFile = "D:/11.out"
+    strInputPsfFile = "PATH/TO/11.csv"
+    strOutPsfFile = "PATH/TO/11.out"
 
     listAllItems = []
     inFile = open(strInputPsfFile,"r")
