@@ -1,4 +1,4 @@
-#从外部文件中获得所有晶体信息
+# Obtain all crystal information from an external file
 import math
 import os
 import sys
@@ -6,13 +6,13 @@ import objects
 import method
 import numpy as np
 
-#从txt文件中读取所有SpaceGroup相关信息
-#注意有些空间群符号表达方式不同，这些暂时没有处理
+# Read all SpaceGroup-related information from a txt file
+# Note: Some SpaceGroup symbols may be expressed differently, which are not currently handled
 def readAllSpaceGroupInfo():
 
     dictSpaceGroupInfo = {}
 
-    #选择txt文件所在目录
+    # Select the directory where the txt file is located
     strSpaceGroupFile = objects.BASISDIR + "public/spacegroup-in.csv"
     file = open(strSpaceGroupFile,"r")
     while 1:
@@ -27,7 +27,7 @@ def readAllSpaceGroupInfo():
             listdetails = curInfo.split(";")
             if len(listdetails) < 2:
                 continue
-            #注意,name作为索引
+            # Note: name serves as an index
             if listdetails[1] not in dictSpaceGroupInfo.keys():
                 dictSpaceGroupInfo[listdetails[1]] = listdetails[0]
 
@@ -36,18 +36,18 @@ def readAllSpaceGroupInfo():
     return dictSpaceGroupInfo
 
 
-#从cif文件中读取所有晶体的晶胞参数，并保存到文件
-#listCifFiles用于过滤晶体，如果为空时，读取文件夹下所有晶体
+# Read the unit cell parameters of all crystals from cif files and save to a file
+# listCifFiles is used to filter crystals; when it's empty, all crystals in the folder are read
 def readCrystalParaFromCif(listCifFiles):
 
     strCifPath = objects.BASISDIR + "cif/"
     listCifParas = []
 
-    #遍历文件夹中所有文件
+    # Traverse all files in the folder
     if len(listCifFiles) < 1:
         listCifFiles = os.listdir(strCifPath)
 
-    #根据系统获得编码方式
+    # Obtain encoding based on the system
     strCodeType = "utf-8"
     sysType = sys.platform
     if sysType == "Windows":
@@ -63,15 +63,15 @@ def readCrystalParaFromCif(listCifFiles):
 
         strFileName = curFile.strip(".cif")
         curFile = strCifPath + curFile
-        # 使用utf-8，否则会报错'gbk' codec can't decode byte 0xa9 in
-        # 也可以事先将文件转为ANSI,linux默认是utf-8,windows默认gbk
+        # Use utf-8 to avoid 'gbk' codec can't decode byte 0xa9 error
+        # Alternatively, convert the file to ANSI beforehand; Linux defaults to utf-8, while Windows defaults to gbk
         file = open(curFile,"r",encoding=strCodeType)
         while 1:
             strLine = file.readline()
             if not strLine:
                 break
 
-            #处理多个空格分隔的情况
+            # Handle cases where multiple spaces are used as separators
             strLine = ' '.join(strLine.split())
             if '_cell_length_' in strLine:
                 strLine = strLine.strip()
@@ -109,7 +109,7 @@ def readCrystalParaFromCif(listCifFiles):
         # listLengthDiffs.append(math.fabs(float(listCurPara[2].strip())))
         listLengthDiffs.sort()
 
-        #归一化
+        # Normalize
         # if ((listLengthDiffs[2] - listLengthDiffs[0]) < 1e-3):
         #     listLengthDiffs[0] = 0.0
         #     listLengthDiffs[1] = 0.0
@@ -128,7 +128,7 @@ def readCrystalParaFromCif(listCifFiles):
         # listAngelDiffs.append(math.fabs(float(listCurPara[5].strip())))
         listAngelDiffs.sort()
 
-        #归一化
+        # Normalize
         # if ((listAngelDiffs[2] - listAngelDiffs[0]) < 1e-3):
         #     listAngelDiffs[0] = 0.0
         #     listAngelDiffs[1] = 0.0
@@ -155,13 +155,13 @@ def readCrystalParaFromCif(listCifFiles):
         # dSisso1 = listLengthDiffs[0]*listLengthDiffs[0]*listLengthDiffs[0] - listAngelDiffs[2]
         # listCurPara.append(str(dSisso1))
 
-        #添加方差
-        #listCurPara.append(str(np.var(listLengthDiffs)))
-        #listCurPara.append(str(np.var(listAngelDiffs)))
+        # Add variance
+        # listCurPara.append(str(np.var(listLengthDiffs)))
+        # listCurPara.append(str(np.var(listAngelDiffs)))
 
         listCifParas.append(listCurPara)
 
-    #写入输出文件
+    # Write to output file
     strCrystalFile = objects.BASISDIR + "cif-out.csv"
     file = open(strCrystalFile,"a+")
     file.write("\n--------Crystal Parameters---------------\n")
@@ -172,11 +172,11 @@ def readCrystalParaFromCif(listCifFiles):
     file.close()
 
 
-#从cif文件中读取所有晶体的Wyckoff矩阵，并保存到文件
-#listCifFiles用于过滤晶体，如果为空时，读取文件夹下所有晶体
+# Read the Wyckoff matrices of all crystals from cif files and save to a file
+# listCifFiles is used to filter crystals; when it's empty, all crystals in the folder are read
 def readCrystalWyckoffFromCif(listCifFiles,listElementInfo):
 
-    #根据系统获得编码方式
+    # Obtain encoding based on the system
     strCodeType = "utf-8"
     sysType = sys.platform
     if sysType == "Windows":
@@ -193,7 +193,7 @@ def readCrystalWyckoffFromCif(listCifFiles,listElementInfo):
     for eleItem in listElementInfo:
         dictEleIndex[eleItem.m_strName] = int(eleItem.m_strID)
 
-    #从文件中读取所有可能的Wychkoff position
+    # Read all possible Wyckoff positions from the file
     dictWyckoff = {}
     listWyckoffVector = []
     strWychkoffFile = objects.BASISDIR + "public/WyckoffPosition.csv"
@@ -209,7 +209,7 @@ def readCrystalWyckoffFromCif(listCifFiles,listElementInfo):
             listWyckoffVector.append(arrTmpPositions[0])
     WychkoffFile.close()
 
-    #遍历文件夹中所有文件
+    # Traverse all files in the folder
     strCifPath = objects.BASISDIR + "cif/"
     if len(listCifFiles) < 1:
         listCifFiles = os.listdir(strCifPath)
@@ -221,15 +221,15 @@ def readCrystalWyckoffFromCif(listCifFiles,listElementInfo):
         dictCurWychoff = dictWyckoff.copy()
         dictCurCount = {}
         curFile = strCifPath + curFile
-        # 使用utf-8，否则会报错'gbk' codec can't decode byte 0xa9 in
-        # 也可以事先将文件转为ANSI,linux默认是utf-8,windows默认gbk
+        # Use utf-8 to avoid 'gbk' codec can't decode byte 0xa9 error
+        # Alternatively, convert the file to ANSI beforehand; Linux defaults to utf-8, while Windows defaults to gbk
         file = open(curFile,"r",encoding=strCodeType)
         while 1:
             strLine = file.readline()
             if not strLine:
                 break
 
-            #处理多个空格分隔的情况
+            # Handle cases where multiple spaces are used as separators
             strLine = ' '.join(strLine.split())
             if '_atom_site_label' in strLine:
                 nLineNum = 0
@@ -242,10 +242,10 @@ def readCrystalWyckoffFromCif(listCifFiles,listElementInfo):
                 nMultiplicityIndex = nLineNum
                 continue
 
-            #开始读取了
+            # Reading started
             if nMultiplicityIndex > -1 and '_atom_' not in strLine:
                 arrAtomInfos = strLine.split()
-                #读取结束时遇到空行或loop
+                # Reading ended upon encountering an empty line or 'loop'
                 if (len(arrAtomInfos) < nMultiplicityIndex+2):
                     break
                 strAtomType = arrAtomInfos[0].strip('0123456789')
@@ -260,7 +260,7 @@ def readCrystalWyckoffFromCif(listCifFiles,listElementInfo):
                     dictCurCount[strResultIndex] = 1
         file.close()
 
-        #取比例
+        # Retrieve proportions
         # for key in dictCurWychoff.keys():
         #     dictCurWychoff[key] = dictCurWychoff[key] / nCurTotalAtomNum
         for key in dictCurWychoff.keys():
@@ -279,11 +279,11 @@ def readCrystalWyckoffFromCif(listCifFiles,listElementInfo):
     outfile.write("\n")
     outfile.close()
 
-    #写入输出文件
+    # Write to output file
     outfile = open(strOutFile,"a+")
     for nIndex in range(0,len(listCifFiles)):
         outfile.write(listCifFiles[nIndex])
-        #检查此列是否为0,不为0时写入
+        # Check if this column is zero; write if not zero
         for item in listWyckoffVector:
                 outfile.write(",")
                 outfile.write(str(listResult[nIndex][item]))
@@ -291,10 +291,10 @@ def readCrystalWyckoffFromCif(listCifFiles,listElementInfo):
 
     outfile.close()
 
-#从cif文件中获取键长分布，晶体中阴性基团的Flexibility，键长的变化幅度
+# Extract bond length distribution, flexibility of negative groups in the crystal, and magnitude of bond length variation from CIF files.
 def calBondAndFlexibility(strCifFile, listElementInfo, crystalObject):
 
-    #获得晶体中阴性基团中的所有原子，也就是此时不考虑阳性基团
+    # Retrieve all atoms in the negative groups within the crystal, excluding positive groups.
     listNegaAtoms = []
     for item in crystalObject.m_listNegativeGroups:
         strFormula = item
@@ -304,8 +304,8 @@ def calBondAndFlexibility(strCifFile, listElementInfo, crystalObject):
             if key not in listNegaAtoms:
                 listNegaAtoms.append(key)
 
-    # 使用utf-8，否则会报错'gbk' codec can't decode byte 0xa9 in
-    # 也可以事先将文件转为ANSI
+    # Use utf-8 to avoid 'gbk' codec can't decode byte 0xa9 error
+    # Alternatively, convert the file to ANSI beforehand
     listParas = [999.0, 999.0, 999.0, 999.0, 999.0, 999.0]
     bIsReadCoord = False
     nAtomNameCol = -1
@@ -320,10 +320,10 @@ def calBondAndFlexibility(strCifFile, listElementInfo, crystalObject):
         if not strLine:
             break
 
-        #处理多个空格分隔的情况
+        # Handle cases where multiple spaces are used as separators
         strLine = ' '.join(strLine.split())
 
-        #读取晶胞参数
+        # Read unit cell parameters
         if '_cell_length_' in strLine or '_cell_angle_' in strLine:
             strLine = strLine.strip()
             strLine = strLine.strip(")")
@@ -331,7 +331,7 @@ def calBondAndFlexibility(strCifFile, listElementInfo, crystalObject):
             listTmpInfo = strLine.split(" ")
             listParas.append(listTmpInfo[1])
 
-        #读取晶胞内所有阴性基团的
+        # Read all negative groups within the unit cell
         strLine.strip()
         if "_atom_site" in strLine:
 
@@ -360,11 +360,11 @@ def calBondAndFlexibility(strCifFile, listElementInfo, crystalObject):
 
             strCurAtomName = listTmpInfo[nAtomNameCol].strip("0123456789")
             if  strCurAtomName in listNegaAtoms:
-                curAtom = objects.CAtom(listTmpInfo[nAtomNameCol]) #原子名称
+                curAtom = objects.CAtom(listTmpInfo[nAtomNameCol]) # Atom Name
                 curAtom.m_strName = strCurAtomName
-                curAtom.m_strX = listTmpInfo[nAtomXCol] #原子类型
-                curAtom.m_strY = listTmpInfo[nAtomYCol] #原子类型
-                curAtom.m_strZ = listTmpInfo[nAtomZCol] #原子类型
+                curAtom.m_strX = listTmpInfo[nAtomXCol] # Atom Type
+                curAtom.m_strY = listTmpInfo[nAtomYCol] # Atom Type
+                curAtom.m_strZ = listTmpInfo[nAtomZCol] # Atom Type
                 if curAtom.m_strX == ".":
                     curAtom.m_strX = "0.0"
                 if curAtom.m_strY == ".":
@@ -375,7 +375,7 @@ def calBondAndFlexibility(strCifFile, listElementInfo, crystalObject):
 
     file.close()
 
-    #晶体常数
+    # Crystal constants
     listLengthParas = []
     listLengthParas.append(float(listParas[0]))
     listLengthParas.append(float(listParas[1]))
@@ -385,7 +385,7 @@ def calBondAndFlexibility(strCifFile, listElementInfo, crystalObject):
     listAngelParas.append(float(listParas[4]))
     listAngelParas.append(float(listParas[5]))
 
-    #计算每个原子的SymmFunc
+    # Calculate SymmFunc for each atom
     dCutOffRadiu = 6.0
     listNearAtoms = []
     listNearDist = []
@@ -404,14 +404,14 @@ def calBondAndFlexibility(strCifFile, listElementInfo, crystalObject):
 
     crystalObject.m_listNegaAtoms = listAtoms
 
-    #获取Flexibility
+    # Get Flexibility
     listBonds = method.getBondsFromAtoms(listAtoms, listElementInfo, listLengthParas, listAngelParas)
     crystalObject.m_listNegaBonds = listBonds
 
     return  crystalObject
 
 
-#从完整的文本中直接获取CrystalInfo
+# Retrieve CrystalInfo directly from the complete text
 def readCrystalInfoFromTxt(strFile):
     listCrystalInfo = []
     file = open(strFile,"r")
@@ -456,7 +456,7 @@ def readCrystalInfoFromTxt(strFile):
     return listCrystalInfo
 
 
-#保存晶体中元素的分布情况
+# Save the distribution of elements in the crystal
 def saveElementDistribution(listCrystalInfo,listElementInfo):
 
 
@@ -466,7 +466,7 @@ def saveElementDistribution(listCrystalInfo,listElementInfo):
                      'Rb', 'Sr','Y','Zr','Nb', 'Mo','Ru','Pd','Ag','Cd','In', 'Sn','Sb','Te','I',
                      'Cs','Ba','La', 'Hf','Ta','W','Os','Pt','Au','Hg','Tl','Pb','Bi']
 
-    #写入输出文件
+    # Write to output file
     strCrystalFile = objects.BASISDIR + "elementDistribution-out.csv"
     file = open(strCrystalFile,"a+")
     file.write("\n--------elementDistribution---------------\n")
@@ -491,9 +491,9 @@ def saveElementDistribution(listCrystalInfo,listElementInfo):
     file.close()
 
 
-#从txt文件中读取所有Crystal相关信息
+# Read all Crystal-related information from a txt file
 def readAllCrystalInfo(listElementInfo):
-    #选择txt文件所在目录
+    # Select the directory where the txt file is located
     strCrystalFile = objects.BASISDIR + "crystal-in.csv"
     listCrystalInfo = readCrystalInfoFromTxt(strCrystalFile)
 
@@ -503,7 +503,7 @@ def readAllCrystalInfo(listElementInfo):
                          147,148,162,163,164,165,166,167,175,176,191,192,193,194,200,201,202,203,204,
                          205,206,221,222,223,224,225,226,227,228,229,230]
 
-    #读入所有SpaceGroup，如果原文件中没有SpaceGroupID，则从相应文件中读取
+    # Read all SpaceGroup information. If SpaceGroupID is not present in the original file, read it from the respective file
     # nIndex = -1
     # dictSpaceGroupInfo = readAllSpaceGroupInfo()
     # for curCrystal in listCrystalInfo:
@@ -512,34 +512,34 @@ def readAllCrystalInfo(listElementInfo):
     #     if not os.path.exists(strCifFile):
     #         print("The %s.cif is not exist\n"%(curCrystal.m_strID))
     #         continue
-        #计算Bond和Flexibility ****
+        # Calculate Bond and Flexibility ****
         #listCrystalInfo[nIndex] = calBondAndFlexibility(strCifFile, listElementInfo, curCrystal)
 
-        # 填写空间群ID
+        # Fill in the SpaceGroup ID
         # strCurSpaceGroupName = curCrystal.m_strSpaceGroupName.strip("Z")
         # strCurSpaceGroupName = strCurSpaceGroupName.strip("S")
         # if len(curCrystal.m_strSpaceGroupID) < 1 and strCurSpaceGroupName in dictSpaceGroupInfo.keys():
         #     listCrystalInfo[nIndex].m_strSpaceGroupID = dictSpaceGroupInfo[strCurSpaceGroupName]
 
-        #标记中心对称空间群
+        # Mark centrosymmetric space groups
         # if listCrystalInfo[nIndex].m_strSpaceGroupID == "":
         #     listCrystalInfo[nIndex].m_strSpaceGroupID = "0"
         # elif int(listCrystalInfo[nIndex].m_strSpaceGroupID) in listCenterSpaceID:
         #     listCrystalInfo[nIndex].m_strSpaceGroupID = "0"
 
-    #获取所有晶体cif的晶体参数
+    # Retrieve crystal parameters for all crystal CIFs
     # listCrystalCifs = []
     # for curCrystal in listCrystalInfo:
     #     listCrystalCifs.append(curCrystal.m_strID+".cif")
     # readCrystalParaFromCif(listCrystalCifs)
     #readCrystalWyckoffFromCif(listCrystalCifs,listElementInfo)
 
-    #保存晶体的元素分布
+    # Save the distribution of elements in the crystal
     # saveElementDistribution(listCrystalInfo,listElementInfo)
 
     return listCrystalInfo
 
-#保存所有的信息
+# Save all information
 def saveAllCrystalInfo(listCrystalInfo):
     strCrystalFile = objects.BASISDIR + "crystal-out.csv"
     file = open(strCrystalFile,"a+")
