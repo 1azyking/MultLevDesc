@@ -1,41 +1,41 @@
-#常见的公共方法
+# Common public methods
 import math
 import numpy as np
 import objects
 
-#判断是否为数字
+# Determine if it is a number
 def is_number(inputstring):
     s = str(inputstring)
-    if s.count('.') == 1:#小数
+    if s.count('.') == 1:  # decimal
         new_s = s.split('.')
         left_num = new_s[0]
         right_num = new_s[1]
         if right_num.isdigit():
             if left_num.isdigit():
                return True
-            elif left_num.count('-') == 1 and left_num.startswith('-'):#负小数
+            elif left_num.count('-') == 1 and left_num.startswith('-'):  # nagative decimal
                 tmp_num = left_num.split('-')[-1]
                 if tmp_num.isdigit():
                     return True
-    elif s.count(".") == 0:#整数
+    elif s.count(".") == 0:  # integer
         if s.isdigit():
             return True
-        elif s.count('-') == 1 and s.startswith('-'):#负整数
+        elif s.count('-') == 1 and s.startswith('-'):  # negative integer
             ss = s.split('-')[-1]
             if ss.isdigit():
                 return True
     return False
 
 
-#括号匹配，只处理()，返回括号匹配的范围，()()类型的括号依次存储即可，使用时直接展开
-#aa((xxxx)yyy(zzz))bb类型的括号本函数处理完之后，最里层的括号最后入栈listBackets
+# Bracket matching. Only handle '()', return the range of matching brackets. For '()()' type of brackets, store them sequentially. When used, they can be expanded directly.
+# After processing brackets like 'aa((xxxx)yyy(zzz))bb', the innermost brackets are pushed to the stack listBrackets
 def checkBrackets(stringInput, listBackets):
     listBackets.clear()
     listLeftIndex = []
     for index in range(len(stringInput)):
         if stringInput[index] == "(":
             listLeftIndex.append(index)
-        if stringInput[index] == ")" and len(listLeftIndex) > 0: #左括号出栈并构建括号对象
+        if stringInput[index] == ")" and len(listLeftIndex) > 0:  # Popping the left bracket off the stack and constructing a bracket object
             leftIndex = listLeftIndex.pop()
             curObject = objects.CBracketObject(str(leftIndex))
             curObject.m_strName = "("
@@ -46,14 +46,14 @@ def checkBrackets(stringInput, listBackets):
     return len(listBackets) > 0
 
 
-#从字符串中得到元素的组成和个数，返回dict
-#只处理形如Al2O3,CaO,Na2O，有可能出现Na3B5O9H2O等
+# Extract the composition and count of elements from the string, and return a dictionary
+# Only handle strings like Al2O3, CaO, Na2O. It's possible to encounter strings like Na3B5O9H2O
 def getElementFromString(stringInput, dictElements):
     dictElements.clear()
     strElement = ""
     strNum = ""
     for curChar in stringInput:
-        if curChar.isupper(): #旧元素的结束，新元素开始
+        if curChar.isupper():  # The end of the old element, the start of the new element
             if len(strNum) < 1:
                 strNum = "1"
             if strElement in dictElements.keys():
@@ -62,13 +62,13 @@ def getElementFromString(stringInput, dictElements):
                 dictElements[strElement] = int(strNum)
             strElement = curChar
             strNum = ""
-        elif curChar.islower():#元素结束，没有3个字符的元素符号
+        elif curChar.islower():  # Element ended, no element symbol with 3 characters
             strElement = strElement + curChar
         elif curChar.isdigit():
-            if len(strElement) > 0: #有可能存在11Na2O等形式，要排除前面的数字
+            if len(strElement) > 0: # It's possible to have forms like 11Na2O, we need to exclude the preceding numbers
                 strNum = strNum + curChar
 
-    #最后有可能是数字所以需要处理最后一个元素
+    # It's possible that the last element is a number, so we need to handle the last element
     if len(strElement) > 0:
         if len(strNum) < 1:
             strNum = "1"
@@ -78,27 +78,28 @@ def getElementFromString(stringInput, dictElements):
             dictElements[strElement] = int(strNum)
 
 
-#从化学式中获取元素的组成和个数，修改dict并返回是否处理成功
-#可处理带括号的形式，如(Al2O3)10(B2O3)2、Ca(B3O4(OH)3)(H2O)
-# 注意，可能会修改strFormula进行括号展开
+# Extract the composition and count of elements from the chemical formula, modify the dictionary, and return whether the operation was successful
+# Formulas with brackets, such as (Al2O3)10(B2O3)2, Ca(B3O4(OH)3)(H2O) can also be handled
+# Note that the strFormula may be modified for bracket expansion
 def getElementFromFormula(strFormula, dictElements):
     dictElements.clear()
     listBackets = []
-    dictSub = {}#用来临时存储括号内的元素
+    dictSub = {}  # Used to temporarily store elements within brackets
     strNum = ""
 
-    #循环直到所有括号都被展开
+    # Loop until all brackets are expanded
     while (checkBrackets(strFormula, listBackets)):
         leftIndex = int(listBackets[0].m_strID)
         rightIndex = int(listBackets[0].m_strRightID)
 
-        #得到子串
+        # Obtain the substring
         strSubFormula = strFormula[leftIndex+1:rightIndex]
         dictSub.clear()
         getElementFromString(strSubFormula,dictSub)
 
-        #获得括号后面的个数，如果后面是字母或其他符号则break
-        #还需要将个数移除掉
+        # Retrieve the count after the bracket. 
+        # If there are letters or other symbols following, break
+        # Also need to remove the count
         nDigitNum = 0
         strNum = ""
         for index in range(rightIndex+1,len(strFormula)):
@@ -107,8 +108,8 @@ def getElementFromFormula(strFormula, dictElements):
             strNum = strNum + strFormula[index]
             nDigitNum += 1
 
-        #更新括号中元素个数
-        #去除原字符串中括号，并将dictSub中元素展开
+        # Update the count of elements within brackets
+        # Remove brackets from the original string and expand the elements in dictSub
         strLeft = ""
         if leftIndex > 0:
             strLeft = strFormula[0:int(leftIndex)]
@@ -120,9 +121,9 @@ def getElementFromFormula(strFormula, dictElements):
             if len(strNum) > 0:
                 dictSub[key] = int(dictSub[key]) * int(strNum)
             strDictSub = strDictSub + key + str(dictSub[key])
-        strFormula = strLeft + strDictSub + strRight #输入字符串已经被改变了
+        strFormula = strLeft + strDictSub + strRight  # The input string has been modified
 
-    #最后获得所有的元素和数量
+    # Finally, obtain all elements and their quantities
     getElementFromString(strFormula,dictElements)
     strOutFormula = ""
     for key in dictElements.keys():
@@ -131,7 +132,7 @@ def getElementFromFormula(strFormula, dictElements):
     return strOutFormula
 
 
-#根据输入将Label二分化,arrLabel1D(adarray)
+# Divide Label into two based on the input, arrLabel1D (array)
 def biDvidedDataVectorByPoint(arrLabel1D, dDivPoint):
     nIndex = 0
     nNum = arrLabel1D.size
@@ -145,9 +146,9 @@ def biDvidedDataVectorByPoint(arrLabel1D, dDivPoint):
     return dDivPoint
 
 
-#将输入的一维数组，根据中间值二分化，常用于分类任务中标签的二分化
-#一维数组应该是数值类型的，float，int，而不能是string
-#返回分值点
+# Divide the input one-dimensional array into two based on the median value, commonly used for binary classification tasks to binaryize labels
+# The one-dimensional array should be of numeric types, such as float or int, and not string
+# Return the divided site
 def biDvidedDataVectorByMid(arrLabel1D):
     dMid = 0.1
     for item in arrLabel1D:
@@ -161,7 +162,7 @@ def biDvidedDataVectorByMid(arrLabel1D):
     return dMid
 
 
-#计算数组arrData1D中的的信息熵，一维数组，且内容只有0和1
+# Calculate the information entropy of the array arrData1D. The array is one-dimensional and contains only 0 or 1
 def calInfoEntropy(arrData1D):
     dEntropy = 0.0
     dictValue = {}
@@ -182,8 +183,8 @@ def calInfoEntropy(arrData1D):
     return dEntropy
 
 
-#计算两点距离，注意有可能传入的是cif中的fractional坐标，所以
-# CAtom是objects.CAtom类，listLengths是晶体三个方向的边长，listAngels是晶体常数中的角度
+# Calculate the distance between two points. Note that fractional coordinates from CIF files might be passed as input
+# So CAtom is an objects.CAtom class, listLengths are the lengths of the three directions in the crystal, and listAngles are the angles in the crystal constants
 # http://pd.chem.ucl.ac.uk/pdnn/refine2/bonds.htm
 def calDistance(CAtom1, CAtom2, listLengths = [1.0,1.0,1.0], listAngels = [90.0,90.0,90.0]):
 
@@ -202,7 +203,7 @@ def calDistance(CAtom1, CAtom2, listLengths = [1.0,1.0,1.0], listAngels = [90.0,
 
         return math.sqrt(dDistance2)
 
-#计算两点距离
+# Calculate the distance between two points
 def calDistanceSimple(listCoords1, listCoords2):
 
     dDistX = listCoords1[0] - listCoords2[0]
@@ -212,9 +213,9 @@ def calDistanceSimple(listCoords1, listCoords2):
     return math.sqrt(dR2)
 
 
-#读取计算基团Flexibility的bondValence值
+# Read the bondValence values used for calculating the flexibility of functional groups
 # https://www.iucr.org/resources/data/data-sets/bond-valence-parameters
-#  https://doi.org/10.1038/s41598-020-60410-x
+# https://doi.org/10.1038/s41598-020-60410-x
 def readBondValenceParas():
     strFile = objects.BASISDIR + "public/bondValence2020.cif"
     listBondValParas = []
@@ -224,7 +225,7 @@ def readBondValenceParas():
         if not strLine:
             break
 
-        #处理多个空格分隔的情况
+        # Handle cases where multiple spaces are used as separators
         strLine = ' '.join(strLine.split())
         strLine = strLine.strip()
         listInfos = strLine.split(" ")
@@ -242,17 +243,17 @@ def readBondValenceParas():
     return listBondValParas
 
 
-# 根据一系列原子坐标和晶胞参数来过滤所有的键，并计算Flexibility
-# 注意，要保证listAtoms对象中ID是元素序号
-# 如果Name为空则此函数会修改listAtoms中的Name
+# Filter all bonds based on a series of atomic coordinates and unit cell parameters, and calculate Flexibility
+# Note: Ensure that the IDs in the listAtoms object correspond to the atomic indices
+# If the Name is empty, this function will modify the Name in the listAtoms
 def getBondsFromAtoms(listAtoms, listElementInfo, listLengths = [1.0,1.0,1.0], listAngels = [90.0,90.0,90.0]):
 
     listBonds = []
 
-    #获取不同原子对的bondValence值
+    # Retrieve the bondValence values for different atomic pairs
     listBondValParas = readBondValenceParas()
 
-    #获取不同原子的价电子数和电负性
+    # Retrieve the valence electron count and electronegativity for different atoms
     dictAtomIndex = {}
     dictAtomName = {}
     dictAtomValEleNum = {}
@@ -268,24 +269,25 @@ def getBondsFromAtoms(listAtoms, listElementInfo, listLengths = [1.0,1.0,1.0], l
         dictAtomEleNegativity[elem.m_strName] = float(elem.m_strEleNegativity)
 
 
-    #根据ID处理Name
+    # Process Name based on ID
     for item in listAtoms:
         if item.m_strID in dictAtomIndex.keys():
             item.m_strName = dictAtomIndex[item.m_strID]
 
 
-    #两两之间不能成键(或当前不存在)的元素
+    # Elements that cannot form bonds with each other (or currently do not exist)
     listExcludeAtoms1 = ['N', 'F', 'Cl', 'Br', 'I']
     listExcludeAtoms2 = ['O', 'F', 'Cl', 'Br']
     listExcludeAtoms3 = ['Se', 'N', 'F', 'Cl', 'Br', 'I']
     listExcludeAtoms4 = ['S', 'N', 'I']
 
-    #计算所有键,通过原子类型和距离进行过滤
+    # Calculate all bonds, filtered by atomic types and distance
     nAtomNum = len(listAtoms)
     for nIndex in range(0,nAtomNum):
         for nSubIndex in range(nIndex+1,nAtomNum):
 
-            #不考虑两个相同的原子，#不考虑H原子
+            # Exclude pairs of identical atoms
+            # Exclude hydrogen atoms
             strAtom1 = listAtoms[nIndex].m_strName
             strAtom2 = listAtoms[nSubIndex].m_strName
             bIsNotValid = (strAtom1 == strAtom2 or strAtom1 == "H" or strAtom2 == "H")
@@ -298,7 +300,7 @@ def getBondsFromAtoms(listAtoms, listElementInfo, listLengths = [1.0,1.0,1.0], l
 
             dDistance = calDistance(listAtoms[nIndex], listAtoms[nSubIndex], listLengths, listAngels)
 
-            #普通键长不会小于1；
+            # The regular bond length cannot be smaller than 1
             if dDistance < 1.0:
                 continue
 
@@ -318,17 +320,17 @@ def getBondsFromAtoms(listAtoms, listElementInfo, listLengths = [1.0,1.0,1.0], l
 
     return listBonds
 
-# 根据一系列原子坐标和晶胞参数来过滤所有的键，并计算SymmetryFunction
-# 注意，要保证listAtoms对象中ID是元素序号
-# 如果Name为空则此函数会修改listAtoms中的Name
+# Filter all bonds and calculate SymmetryFunction based on a series of atomic coordinates and unit cell parameters
+# Note: Ensure that the IDs in the listAtoms object correspond to the atomic indices
+# If the Name is empty, this function will modify the Name in the listAtoms
 def getSymmeFuncFromAtoms(listAtoms, listElementInfo, listLengths = [1.0,1.0,1.0], listAngels = [90.0,90.0,90.0]):
 
     listBonds = []
 
-    #获取不同原子对的bondValence值
+    # Retrieve the bondValence values for different atomic pairs
     listBondValParas = readBondValenceParas()
 
-    #获取不同原子的价电子数和电负性
+    # Retrieve the valence electron count and electronegativity for different atoms
     dictAtomIndex = {}
     dictAtomName = {}
     dictAtomValEleNum = {}
@@ -344,18 +346,18 @@ def getSymmeFuncFromAtoms(listAtoms, listElementInfo, listLengths = [1.0,1.0,1.0
         dictAtomEleNegativity[elem.m_strName] = float(elem.m_strEleNegativity)
 
 
-    #根据ID处理Name
+    # Process Name based on ID
     for item in listAtoms:
         if item.m_strID in dictAtomIndex.keys():
             item.m_strName = dictAtomIndex[item.m_strID]
 
-    #计算所有键,通过原子类型和距离进行过滤
+    # Calculate all bonds, filtered by atomic types and distance
     dCutOffRadui = 6.0
     nAtomNum = len(listAtoms)
     for nIndex in range(0,nAtomNum):
         for nSubIndex in range(nIndex+1,nAtomNum):
 
-            #不考虑是否真正成键
+            # Ignore whether they are actually bonded
             # International Journal of Quantum Chemistry 2015, 115, 1032–1050
             dDistance = calDistance(listAtoms[nIndex], listAtoms[nSubIndex], listLengths, listAngels)
             if dDistance > dCutOffRadui:
@@ -371,7 +373,7 @@ def getSymmeFuncFromAtoms(listAtoms, listElementInfo, listLengths = [1.0,1.0,1.0
     return listBonds
 
 
-#获得两个list中的不同项
+# Retrieve the different items between two lists
 def compareTwoListDiff(listData1, listData2):
     listNotIn2 = []
     for item in listData1:
@@ -385,8 +387,8 @@ def compareTwoListDiff(listData1, listData2):
 
     return listNotIn1,listNotIn2
 
-#对字典按其keys/values进行排序，并返回排序后的所有keys
-#只处理values是float的类型
+# Sort the dictionary by its keys/values and return all keys after sorting
+# Only handle values of type float
 def sortDictions(dictTarget, strType):
 
     if strType == "keys":
@@ -409,7 +411,7 @@ def sortDictions(dictTarget, strType):
     return listKeys
 
 
-#获得list中的最小项对应的索引
+# Retrieve the index corresponding to the minimum item in the list
 def getMinimalIndex(listData1):
 
     nMiniIndex = -1
@@ -421,7 +423,7 @@ def getMinimalIndex(listData1):
 
     return nMiniIndex
 
-#获得list中的最小项若干项
+# Retrieve several minimum items from the list
 def getMinimalSubArr(listData1, nNum):
 
     dictData = {}
@@ -442,7 +444,7 @@ def getMinimalSubArr(listData1, nNum):
 
     return listRetunIndexs
 
-#获得list中的小于Threshold若干项
+# Retrieve several items less than the Threshold from the list
 def getMinimalSubArrByThreshold(listData1, dThreshold):
 
     listRetunIndexs = []
@@ -452,7 +454,7 @@ def getMinimalSubArrByThreshold(listData1, dThreshold):
 
     return listRetunIndexs
 
-#获得list中的最大项对应的索引
+# Retrieve the index corresponding to the maximum item in the lis
 def getMaximalIndex(listData1):
 
     nMaxIndex = -1
@@ -464,14 +466,14 @@ def getMaximalIndex(listData1):
 
     return nMaxIndex
 
-#计算质心
+# Calculate the centroid
 def CalMassCenter(listAtoms, listCoords):
 
     listMassCenter = [0.0,0.0,0.0]
 
     nAtoms = len(listAtoms)
     if nAtoms != len(listCoords):
-        print("原子数与坐标数不匹配！")
+        print("The number of atoms does not match the number of coordinates!")
         return listMassCenter
 
     dictAtomMass = {}
@@ -490,7 +492,7 @@ def CalMassCenter(listAtoms, listCoords):
     for nIndex in range(0,nAtoms):
 
         if listAtoms[nIndex] not in dictAtomMass.keys():
-            print("%s的质量不存在\n"%(listAtoms[nIndex]))
+            print("The mass of %s does not exist\n"%(listAtoms[nIndex]))
         else:
             dTotMass += dictAtomMass[listAtoms[nIndex]]
 
@@ -503,7 +505,7 @@ def CalMassCenter(listAtoms, listCoords):
     listMassCenter[2] /= dTotMass
     return dTotMass, listMassCenter
 
-# 求二面角
+# Calculate the dihedral angle
 def calDihedral():
 
     C = [-1.123, 1.383, 0.000]
@@ -516,18 +518,22 @@ def calDihedral():
     C = np.array(C1)
     D = np.array(C3)
 
-    # 需要注意减法的顺序，因为这决定了向量的方向，从而决定了平面法向量的方向
+    # Pay attention to the order of subtraction, as it determines the direction of the vectors, 
+    # and thus the direction of the normal vector of the plane
     a, b, c = B-A, C-B, D-C
-    # 使用数学上向量的方法叉乘，n1=a×b，n2=b×c；（注意顺序，决定了法向量的方向，方向错了二面角会错）
+    # Use the mathematical cross product of vectors: n1 = a × b, n2 = b × c 
+    # Note the order, which determines the direction of the normal vectors 
+    # If the direction is wrong, the dihedral angle will be incorrect
     n1, n2 = np.cross(a, b), np.cross(b, c)
-    # 得出的两个法向量用余弦定理求角度 θ = arccos{（n1·n2）/（|n1|*|n2|)}
+    # Calculate the angle between the two normal vectors using the law of cosines
+    # θ = arccos{（n1·n2）/（|n1|*|n2|)}
     normal1 = np.linalg.norm(n1)
     normal2 = np.linalg.norm(n2)
     dotProduct = np.dot(n1, n2)
     dihedral = math.acos(dotProduct/(normal1*normal2)) * 180 / math.pi
     print(dihedral)
 
-#单独调用时进行测试
+# Test individually when calling
 if __name__ == '__main__':
 
     calDihedral()
