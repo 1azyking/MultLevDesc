@@ -1,13 +1,11 @@
-# 定义全局的常量、变量等
-# 为了保持格式纯净，类中的所有成员变量均为string
-
+# Define global constants, variables, etc
+# To keep the format pure, all member variables in the class are string
 import math
 import method
 
-BASISDIR = "D:/Data/" #数据存储的基本地址
-#BASISDIR = "/public4/home/sc55809/mySoft/machineLearning/Data/" #数据存储的基本地址
+BASISDIR = "PATA/TO/YOUR/DATA"
 
-#所有object的父类
+# Parent class of all objects
 class CBaseObject:
     def __init__(self,strID):
         self.m_strID=strID
@@ -22,17 +20,17 @@ class CBaseObject:
     def joinToString(self, strBreak):
         strLine = self.m_strID + strBreak
         strLine = strLine + self.m_strName + strBreak
-        #为了保险起见多添加一个分隔符，
+        # Add an extra delimiter just to be on the safe side
         return strLine
 
-# 计算基团Flexibility的bondValence值
+# Calculating the bondValence value of the group Flexibility
 class CBondValencePara(CBaseObject):
     def __init__(self,strID):
         CBaseObject.__init__(self,strID)
         self.m_strRo = ""
         self.m_strB = ""
 
-    #检查当前Para是属于输入的两个原子
+    # Check that the current Para is one of the two atoms belonging to the input
     def isBond(self,strElement1, strElement2):
         if strElement1 == self.m_strID and strElement2 == self.m_strName:
             return True
@@ -51,8 +49,8 @@ class CAtom(CBaseObject):
         self.m_strZ = ""
         self.m_strSymFunc = ""
 
-    #计算当前键的自由度
-    # listNearAtoms是在截断半径中的所有其他原子
+    # Calculate the degrees of freedom of the current key
+    # listNearAtoms is all the other atoms in the truncation radius
     def calSymmetryFunction(self,listNearAtoms, listNearDist, dCutOffRadiu=6.0, dMiu = 0.0, dEta = 2.0):
 
         dTotalSymFunc = 0.0
@@ -64,25 +62,25 @@ class CAtom(CBaseObject):
             dCurSymFunc = dCurSymFunc * dCutOff
             dTotalSymFunc = dTotalSymFunc + dCurSymFunc
 
-        #因为当前只是从一个单胞中获取的原子，所以只能求平均才能保证不随周围对称原子数改变而变化
+        # Since the atoms are currently only taken from a single cell, it can only be averaged to ensure that it does not change with the number of symmetric atoms around it
         if nAtomNum < 1:
             self.m_strSymFunc = "0.0"
         else:
             self.m_strSymFunc = str(dTotalSymFunc/nAtomNum)
 
 
-#键
+# bond
 class CBond(CBaseObject):
     def __init__(self,strID):
         CBaseObject.__init__(self,strID)
         self.m_CAtom1 = CAtom
-        self.m_strLength = "999999999999.9999" #键长
+        self.m_strLength = "999999999999.9999"
         self.m_strFlexibility = "0.0"
 
-    #计算当前键的自由度
-    # dictAtomValEleNum原子名对应的价电子数
+    # Calculate the degrees of freedom of the current bond
+    # dictAtomValEleNum: number of valence electrons corresponding to atom name
     def calFlexibility(self,listBondValParas,dictAtomValEleNum,dictAtomEleNegativity):
-        #获得BondValence索引
+        # Obtain the index of BondValence
         nParaIndex = -1
         for paraItem in listBondValParas:
             nParaIndex = nParaIndex + 1
@@ -92,7 +90,7 @@ class CBond(CBaseObject):
         if nParaIndex < 0 or nParaIndex >= len(listBondValParas):
             return 0.0
 
-        #计算Flexibility
+        # Calculate Flexibility
         dBondLengthDiff = float(listBondValParas[nParaIndex].m_strRo) - float(self.m_strLength)
         dBondValenece = math.exp(dBondLengthDiff/float(listBondValParas[nParaIndex].m_strB))
         dValenceEleNum = math.sqrt(dictAtomValEleNum[self.m_CAtom1.m_strName]) + math.sqrt(dictAtomValEleNum[self.m_CAtom2.m_strName])
@@ -112,15 +110,16 @@ class CBond(CBaseObject):
 
         self.m_strFlexibility = str(dFlexibility)
 
-#角
+# angle
 class CAngel(CBaseObject):
     def __init__(self,strID):
         CBaseObject.__init__(self,strID)
-        self.m_strLength = "999999999999.9999" #键长
+        self.m_strLength = "999999999999.9999"  # bond length
 
 
-#字符串中括号类，m_strID表明左括号在字符串中的位置，m_strRightID表示右括号所在位置
-# m_strName为括号符号，用于括号的匹配
+# String parenthesis class, m_strID indicates the position of the left parenthesis in the string, 
+# m_strRightID indicates the location of the right parenthesis
+# m_strName is a bracket symbol for bracket matching
 class CBracketObject(CBaseObject):
     def __init__(self,strID):
         CBaseObject.__init__(self,strID)
@@ -128,7 +127,7 @@ class CBracketObject(CBaseObject):
         self.m_strRightName = ""
 
 
-#https://pubchem.ncbi.nlm.nih.gov/periodic-table/#view=list
+# https://pubchem.ncbi.nlm.nih.gov/periodic-table/#view=list
 class CElementObject(CBaseObject):
      def __init__(self,strID):
         CBaseObject.__init__(self,strID)
@@ -174,35 +173,35 @@ class CElementObject(CBaseObject):
         return strLine
 
 
-#基团信息,父类
+# Group Information, Parent Class
 class CGroupInfo(CBaseObject):
-    #构造函数,只传入Group名称
+    # Constructor, pass only the name of the group
     def __init__(self,strID):
         CBaseObject.__init__(self,strID)
         self.m_strHomo=""
         self.m_strLumo=""
         self.m_strLumoHomo=""
-        self.m_strDipoleTotal="" #单位是Debye
-        self.m_strQuadrupoleXX="" #单位是Debye/Ang
+        self.m_strDipoleTotal=""  # (Debye)
+        self.m_strQuadrupoleXX=""  # (Debye/Ang)
         self.m_strQuadrupoleYY=""
         self.m_strQuadrupoleZZ=""
         self.m_strQuadrupoleXY=""
         self.m_strQuadrupoleXZ=""
         self.m_strQuadrupoleYZ=""
-        self.m_strAnisoQuadrupole="" #四极矩各向异性
-        self.m_listPolarFreq = [] #外场频率,nm
-        self.m_listIsoPolar= [] #极化率各向异性, 原子单位制au
-        self.m_listAnisoPolar= [] #极化率各向异性
-        self.m_listHyperPolarX = [] #第一超极化率X分量
-        self.m_listHyperPolarY = [] #第一超极化率Y分量
-        self.m_listHyperPolarZ = [] #第一超极化率
-        self.m_listTotalHyperPolar= [] #总超极化率各向异性,
-        self.m_listVectorHyperPolar= [] #总超极化率在偶极矩上的投影
+        self.m_strAnisoQuadrupole=""
+        self.m_listPolarFreq = []  # external field frequency(nm)
+        self.m_listIsoPolar= []  # polarizability isotropy(a.u.)
+        self.m_listAnisoPolar= []  # polarizability anisotropy(a.u.)
+        self.m_listHyperPolarX = []  # first hyperpolarizability x-component
+        self.m_listHyperPolarY = []  # first hyperpolarizability y-component
+        self.m_listHyperPolarZ = []  # first hyperpolarizability z-component
+        self.m_listTotalHyperPolar= []  # total hyperpolarizability anisotropy
+        self.m_listVectorHyperPolar= []  # projection of the total hyperpolarizability onto the dipole moment
         self.m_strAtomicNumber=""
-        self.m_strCharge="" #Group电荷数
-        self.m_strMultiplicity= "" #单电子个数
-        self.m_strAverFlexibility = "" #平均共价键自由度
-        self.m_strVolume = "" #体积，简单的通过(4/3)πr^3表示，r为平均键长。是否要添加范德华表面？？
+        self.m_strCharge=""  # charge of Group
+        self.m_strMultiplicity= ""  # number of unpaired electron
+        self.m_strAverFlexibility = ""  # average covalent bond freedom
+        self.m_strVolume = ""  # volume, which is simply expressed by (4/3)πr^3, with r being the average bond length
 
 
     @staticmethod
@@ -234,7 +233,7 @@ class CGroupInfo(CBaseObject):
         strLine = strLine + "strVolume" + strBreak
         return strLine
 
-    #构建一个字符串
+    # Construct a string
     def joinToString(self,strBreak):
         strLine = CBaseObject.joinToString(self,strBreak)
         strLine = strLine + self.m_strAtomicNumber + strBreak
@@ -265,7 +264,7 @@ class CGroupInfo(CBaseObject):
 
     def calDerivatives(self):
 
-        #计算四极矩各向异性
+        # Calculate quadrupole moment anisotropy
         dAnisoXY = float(self.m_strQuadrupoleXX) - float(self.m_strQuadrupoleYY)
         dAnisoXY = dAnisoXY*dAnisoXY
         dAnisoXZ = float(self.m_strQuadrupoleXX) - float(self.m_strQuadrupoleZZ)
@@ -278,10 +277,10 @@ class CGroupInfo(CBaseObject):
         dAnisoXYZ = dAnisoXYZ * 6
         dAnisoXYZ = dAnisoXYZ + dAnisoXY + dAnisoXZ + dAnisoYZ
         self.m_strAnisoQuadrupole = str(math.sqrt(dAnisoXYZ/2))
-        #计算总超极化率
+        # Calculate the total hyperpolarization rate
         nIndex = -1
         for item in self.m_listPolarFreq:
-            #计算总第一超极化率
+            # Calculate the total first hyperpolarization rate
             nIndex = nIndex + 1
             dBetaX = float(self.m_listHyperPolarX[nIndex])
             dBetaX = dBetaX * dBetaX
@@ -291,60 +290,58 @@ class CGroupInfo(CBaseObject):
             dBetaZ = dBetaZ * dBetaZ
             self.m_listTotalHyperPolar.append(str(math.sqrt(dBetaX + dBetaY + dBetaZ)))
 
-    #检查格式是否符合要求
+    # Check the format
     def check(self):
         nLen = len(self.m_listPolarFreq)
         if len(self.m_listVectorHyperPolar) < 1:
             for nIndex in range(0,nLen):
                 self.m_listVectorHyperPolar.append("0.0000")
 
-#阳性基团信息
+# Info of postive group
 class CPostiveGroupInfo(CGroupInfo):
-    #构造函数,只传入Group名称
     def __init__(self,strID):
         CGroupInfo.__init__(self,strID)
 
-#阴性基团信息
+# Info of negative group
 class CNegativeGroupInfo(CGroupInfo):
-    #构造函数,只传入Group名称
     def __init__(self,strID):
         CGroupInfo.__init__(self, strID)
 
 
-#晶体信息
+# Info of crystal
 class CCrystalObject(CBaseObject):
     def __init__(self,strID):
         CBaseObject.__init__(self,strID)
         self.m_strSpaceGroupID=""
         self.m_strSpaceGroupName=""
-        self.m_strLengthMinDiff = "" #晶胞参数最小的差值
-        self.m_strLengthMaxDiff = "" #晶胞参数最大的差值
-        self.m_strAngleMinDiff = "" #晶胞参数最小的差值
-        self.m_strAngleMaxDiff = "" #晶胞参数最大的差值
-        self.m_strLengthMin = "" #晶胞参数最小的值
-        self.m_strLengthMiddle = "" #晶胞参数最小的值
-        self.m_strLengthMax = "" #晶胞参数最大值
-        self.m_strAngleMin = "" #晶胞参数最小的值
-        self.m_strAngleMiddle = "" #晶胞参数最小的值
-        self.m_strAngleMax = "" #晶胞参数最大的值
+        self.m_strLengthMinDiff = "" #Minimum difference in cell parameters
+        self.m_strLengthMaxDiff = "" #Maximum difference in cell parameters
+        self.m_strAngleMinDiff = "" #Minimum difference in cell parameters
+        self.m_strAngleMaxDiff = "" #Maximum difference in cell parameters
+        self.m_strLengthMin = "" 
+        self.m_strLengthMiddle = ""
+        self.m_strLengthMax = ""
+        self.m_strAngleMin = "" 
+        self.m_strAngleMiddle = "" 
+        self.m_strAngleMax = ""
         self.m_strVolume="0.0"
         self.m_listPostiveGroups=[]
         self.m_listNegativeGroups=[]
-        self.__m_strFormula="" #私有属性，必须通过成员函数设置，需要解析
-        self.m_dictElements={} #键为元素符号，值为个数
-        self.m_strGapLevel = "" #bandgap的水平
+        self.__m_strFormula=""
+        self.m_dictElements={}
+        self.m_strGapLevel = ""
         self.m_strBandGap = ""
-        self.m_strBiRefLevel = "" #BiRefracIndex的水平
-        self.m_listBeReflength = [] #双折射率的所有波长
-        self.m_listBeRef = [] #双折射率的值
-        self.m_strMaxDijLevel = "" #二阶非线性系数的水平
-        self.m_lisMaxDijlength = [] #二阶非线性系数的所有波长
-        self.m_listMaxDij = [] #双折射率的值
+        self.m_strBiRefLevel = ""
+        self.m_listBeReflength = []
+        self.m_listBeRef = []
+        self.m_strMaxDijLevel = "" 
+        self.m_lisMaxDijlength = []
+        self.m_listMaxDij = []
 
-        #不能直接从文本中得到
-        self.m_listNegaAtoms = [] #晶体中所有原子
-        self.m_listNegaBonds = [] #晶体中所有键
-        self.m_listNegaAngels = []#晶体中所有角
+        #Info not directly from the text
+        self.m_listNegaAtoms = []
+        self.m_listNegaBonds = []
+        self.m_listNegaAngels = []
 
     def joinToString(self, strBreak):
         strLine = CBaseObject.joinToString(self,strBreak)
@@ -361,7 +358,7 @@ class CCrystalObject(CBaseObject):
         # strLine = strLine + self.m_strAngleMiddle + strBreak
         # strLine = strLine + self.m_strAngleMax + strBreak
         strLine = strLine + self.m_strVolume + strBreak
-        #处理所有的阴阳基团
+        
         strLine = strLine + ";".join(self.m_listPostiveGroups) + strBreak
         strLine = strLine + ";".join(self.m_listNegativeGroups) + strBreak
 
@@ -379,18 +376,17 @@ class CCrystalObject(CBaseObject):
     def setFormula(self, strFormula):
         dictElements = {}
         self.__m_strFormula = method.getElementFromFormula(strFormula,dictElements)
-        method.getElementFromString(self.__m_strFormula,self.m_dictElements) #晶体中所有的元素,key为元素，value为个数
+        method.getElementFromString(self.__m_strFormula,self.m_dictElements)
     def getFormula(self):
         return self.__m_strFormula
 
 
-#描述符
+#descriptors
 class CDescriptor(CBaseObject):
     def __init__(self,strID):
         CBaseObject.__init__(self, strID)
-        #基本元素相关的，基本上都是取平均值
         self.m_strMinMass="9999999999999.99999"
-        self.m_strAverMass="0.0" #所有元素的平均质量
+        self.m_strAverMass="0.0"
         self.m_strMaxMass="-9999999999999.99999"
         self.m_strMinPeriodNum="999999"
         self.m_strAverPeriodNum="0"
@@ -428,73 +424,71 @@ class CDescriptor(CBaseObject):
         self.m_strAverDensity="0.0"
         self.m_strMaxDensity="-9999999999999.99999"
 
-        #阴阳基团相关
-        self.m_strNegaMinGap= "9999999999999.99999" #阴性基团中最小的Lumo-最大的Homo
-        self.m_strNegaAverGap= "0.0" #阴性基团中平均的Lumo-最大的Homo
-        self.m_strNegaMaxGap= "-9999999999999.99999" #阴性基团中最大的Lumo-最大的Homo
-        self.m_strPosiMinGap="9999999999999.99999" #阴性基团中最小的Lumo-最大的Homo
-        self.m_strPosiAverGap="0.0" #阴性基团中最小的Lumo-最大的Homo
-        self.m_strPosiMaxGap="-9999999999999.99999" #阴性基团中最大的Lumo-最大的Homo
+        self.m_strNegaMinGap= "9999999999999.99999"
+        self.m_strNegaAverGap= "0.0" 
+        self.m_strNegaMaxGap= "-9999999999999.99999" 
+        self.m_strPosiMinGap="9999999999999.99999" 
+        self.m_strPosiAverGap="0.0"
+        self.m_strPosiMaxGap="-9999999999999.99999"
 
-        self.m_strMinNegaDipoleTotal="9999999999999.99999" #阴性基团最小总偶极
-        self.m_strAverNegaDipoleTotal="0.0" #阴性基团平均总偶极
-        self.m_strMaxNegaDipoleTotal="-9999999999999.99999" #阴性基团最大总偶极
-        self.m_strMinPosiDipoleTotal="9999999999999.99999"#阳性基团最小总偶极
-        self.m_strAverPosiDipoleTotal="0.0"#阳性基团平均总偶极
-        self.m_strMaxPosiDipoleTotal="-9999999999999.99999"#阳性基团最大总偶极
+        self.m_strMinNegaDipoleTotal="9999999999999.99999"
+        self.m_strAverNegaDipoleTotal="0.0"
+        self.m_strMaxNegaDipoleTotal="-9999999999999.99999"
+        self.m_strMinPosiDipoleTotal="9999999999999.99999"
+        self.m_strAverPosiDipoleTotal="0.0"
+        self.m_strMaxPosiDipoleTotal="-9999999999999.99999"
 
-        self.m_strMinNegaAnisoQuadrupole="9999999999999.99999" #阴性基团最小四极矩各向异性
-        self.m_strAverNegaAnisoQuadrupole="0.0" #阴性基团平均各向异性
-        self.m_strMaxNegaAnisoQuadrupole="-9999999999999.99999" #阴性基团最大各向异性
-        self.m_strMinPosiAnisoQuadrupole="9999999999999.99999" #阳性基团最小各向异性
-        self.m_strAverPosiAnisoQuadrupole="0.0" #阳性基团平均各向异性
-        self.m_strMaxPosiAnisoQuadrupole="-9999999999999.99999" #阳性基团最大各向异性
+        self.m_strMinNegaAnisoQuadrupole="9999999999999.99999" 
+        self.m_strAverNegaAnisoQuadrupole="0.0" 
+        self.m_strMaxNegaAnisoQuadrupole="-9999999999999.99999" 
+        self.m_strMinPosiAnisoQuadrupole="9999999999999.99999" 
+        self.m_strAverPosiAnisoQuadrupole="0.0" 
+        self.m_strMaxPosiAnisoQuadrupole="-9999999999999.99999" 
 
-        self.m_strMinNegaAnisoPolar="9999999999999.99999" #阴性基团最小极化率各向异性
-        self.m_strAverNegaAnisoPolar="0.0" #阴性基团平均极化率各向异性
-        self.m_strMaxNegaAnisoPolar="-9999999999999.99999" #阴性基团最大极化率各向异性
-        self.m_strMinPosiAnisoPolar="9999999999999.99999" #阳性基团最小极化率各向异性
-        self.m_strAverPosiAnisoPolar="0.0" #阳性基团平均极化率各向异性
-        self.m_strMaxPosiAnisoPolar="-9999999999999.99999" #阳性基团最大极化率各向异性
+        self.m_strMinNegaAnisoPolar="9999999999999.99999" 
+        self.m_strAverNegaAnisoPolar="0.0" 
+        self.m_strMaxNegaAnisoPolar="-9999999999999.99999"
+        self.m_strMinPosiAnisoPolar="9999999999999.99999" 
+        self.m_strAverPosiAnisoPolar="0.0"
+        self.m_strMaxPosiAnisoPolar="-9999999999999.99999"
 
-        self.m_strMinNegaTotalHyperPolar="9999999999999.99999" #阴性基团最小第一总超极化率
-        self.m_strAverNegaTotalHyperPolar="0.0" #阴性基团平均第一总超极化率
-        self.m_strMaxNegaTotalHyperPolar="-9999999999999.99999" #阴性基团最大第一总超极化率
-        self.m_strMinPosiTotalHyperPolar="9999999999999.99999" #阳性基团最小第一总超极化率
-        self.m_strAverPosiTotalHyperPolar="0.0" #阳性基团平均第一总超极化率
-        self.m_strMaxPosiTotalHyperPolar="-9999999999999.99999" #阳性基团最大第一总超极化率
+        self.m_strMinNegaTotalHyperPolar="9999999999999.99999"
+        self.m_strAverNegaTotalHyperPolar="0.0" 
+        self.m_strMaxNegaTotalHyperPolar="-9999999999999.99999" 
+        self.m_strMinPosiTotalHyperPolar="9999999999999.99999" 
+        self.m_strAverPosiTotalHyperPolar="0.0"
+        self.m_strMaxPosiTotalHyperPolar="-9999999999999.99999" 
 
-        self.m_strMinNegaVectorHyperPolar="9999999999999.99999" #阴性基团最小第一超极化率在偶极矩方向的分量
-        self.m_strAverNegaVectorHyperPolar="0.0" #阴性基团平均第一超极化率在偶极矩方向的分量
-        self.m_strMaxNegaVectorHyperPolar="-9999999999999.99999" #阴性基团最大第一超极化率在偶极矩方向的分量
-        self.m_strMinPosiVectorHyperPolar="9999999999999.99999" #阳性基团最小第一超极化率在偶极矩方向的分量
-        self.m_strAverPosiVectorHyperPolar="0.0" #阳性基团平均第一超极化率在偶极矩方向的分量
-        self.m_strMaxPosiVectorHyperPolar="-9999999999999.99999" #阳性基团最大第一超极化率在偶极矩方向的分量
+        self.m_strMinNegaVectorHyperPolar="9999999999999.99999" 
+        self.m_strAverNegaVectorHyperPolar="0.0" 
+        self.m_strMaxNegaVectorHyperPolar="-9999999999999.99999" 
+        self.m_strMinPosiVectorHyperPolar="9999999999999.99999" 
+        self.m_strAverPosiVectorHyperPolar="0.0" 
+        self.m_strMaxPosiVectorHyperPolar="-9999999999999.99999" 
 
         self.m_strTotalNegaCharge="0"
         self.m_strTotalPosiCharge="0"
         self.m_strTotalNegaMultiplicity="0"
         self.m_strTotalPosiMultiplicity="0"
 
-        self.m_strMinNegaFlexibility = "999999999999.99999" #基团的最小共价键自由度
-        self.m_strTotalNegaFlexibility = "0.0" #总共价键自由度
-        self.m_strAverNegaFlexibility = "0.0" #平均共价键自由度
-        self.m_strMaxNegaFlexibility = "-999999999999.99999" #最大共价键自由度
+        self.m_strMinNegaFlexibility = "999999999999.99999"
+        self.m_strTotalNegaFlexibility = "0.0" 
+        self.m_strAverNegaFlexibility = "0.0" 
+        self.m_strMaxNegaFlexibility = "-999999999999.99999" 
 
-        self.m_strMinPosiFlexibility = "999999999999.99999" #基团的最小共价键自由度
-        self.m_strTotalPosiFlexibility = "0.0" #总共价键自由度
-        self.m_strAverPosiFlexibility = "0.0" #平均共价键自由度
-        self.m_strMaxPosiFlexibility = "-999999999999.99999" #最大共价键自由度
+        self.m_strMinPosiFlexibility = "999999999999.99999" 
+        self.m_strTotalPosiFlexibility = "0.0" 
+        self.m_strAverPosiFlexibility = "0.0" 
+        self.m_strMaxPosiFlexibility = "-999999999999.99999" 
 
-        #额外的基团结构信息,阴阳基团各自的
         self.m_strMaxNegaVolume = "-999999999.9999"
         self.m_strMaxPosiVolume = "-999999999.9999"
-        self.m_strAverNegaCharge="0" #阴性基团的平均电荷
+        self.m_strAverNegaCharge="0" 
         self.m_strAverPosiCharge="0"
-        self.m_strNegaMaxMinDiffGap= "" #阴性基团中最大gap与最小gap之差
-        self.m_strPosiMaxMinDiffGap= "" #阴性基团中最大gap与最小gap之差
-        self.m_strNegaMaxMinDiffDipoleTotal="" #阴性基团最小总偶极
-        self.m_strPosiMaxMinDiffDipoleTotal="" #阴性基团最小总偶极
+        self.m_strNegaMaxMinDiffGap= ""
+        self.m_strPosiMaxMinDiffGap= "" 
+        self.m_strNegaMaxMinDiffDipoleTotal="" 
+        self.m_strPosiMaxMinDiffDipoleTotal="" 
         self.m_strNegaMaxMinDiffAnisoQuadrupole=""
         self.m_strPosiMaxMinDiffAnisoQuadrupole=""
         self.m_strNegaMaxMinDiffAnisoPolar=""
@@ -505,10 +499,10 @@ class CDescriptor(CBaseObject):
         self.m_strPosiMaxMinDiffVectorHyperPolar=""
         self.m_strNegaMaxMinDiffFlexibility=""
         self.m_strPosiMaxMinDiffFlexibility=""
-        self.m_strNegaMaxMinSumGap= "" #阴性基团中最大gap与最小gap之差
-        self.m_strPosiMaxMinSumGap= "" #阴性基团中最大gap与最小gap之差
-        self.m_strNegaMaxMinSumDipoleTotal="" #阴性基团最小总偶极
-        self.m_strPosiMaxMinSumDipoleTotal="" #阴性基团最小总偶极
+        self.m_strNegaMaxMinSumGap= "" 
+        self.m_strPosiMaxMinSumGap= "" 
+        self.m_strNegaMaxMinSumDipoleTotal="" 
+        self.m_strPosiMaxMinSumDipoleTotal="" 
         self.m_strNegaMaxMinSumAnisoQuadrupole=""
         self.m_strPosiMaxMinSumAnisoQuadrupole=""
         self.m_strNegaMaxMinSumAnisoPolar=""
@@ -520,20 +514,18 @@ class CDescriptor(CBaseObject):
         self.m_strNegaMaxMinSumFlexibility=""
         self.m_strPosiMaxMinSumFlexibility=""
 
-        #通过阴阳基团来构建虚拟晶体(VirtualCrystal,VC)的物理量,注意，此块处理的全部为阴阳基团之间的，不能为同类
-        self.m_strVCGap="" #阴阳基团中gap的最小值
-        self.m_strMaxVCDiffDipoleTotal="" #阴阳基团中DipoleTotal之差的最大值
-        self.m_strMinVCDiffDipoleTotal="" #阴阳基团中DipoleTotal之差的最大值
-        self.m_strMaxVCDiffAnisoQuadrupole="" #阴阳基团中Dipole之差的最大值
-        self.m_strMinVCDiffAnisoQuadrupole="" #阴阳基团中Dipole之差的最大值
-        self.m_strMaxVCDiffTotalHyperPolar="" #阴阳基团中TotalHyperPolar之差的最大值
-        self.m_strMinVCDiffTotalHyperPolar="" #阴阳基团中TotalHyperPolar之差的最小值
-        self.m_strMaxVCDiffVectorHyperPolar="" #阴阳基团中VectorHyperPolar之差的最大值
-        self.m_strMinVCDiffVectorHyperPolar="" #阴阳基团中VectorHyperPolar之差的最小值
-        self.m_strMaxVCDiffFlexibility="" #阴阳基团中VectorHyperPolar之差的最大值
-        self.m_strMinVCDiffFlexibility="" #阴阳基团中VectorHyperPolar之差的最小值
+        self.m_strVCGap=""
+        self.m_strMaxVCDiffDipoleTotal="" 
+        self.m_strMinVCDiffDipoleTotal="" 
+        self.m_strMaxVCDiffAnisoQuadrupole="" 
+        self.m_strMinVCDiffAnisoQuadrupole="" 
+        self.m_strMaxVCDiffTotalHyperPolar="" 
+        self.m_strMinVCDiffTotalHyperPolar="" 
+        self.m_strMaxVCDiffVectorHyperPolar="" 
+        self.m_strMinVCDiffVectorHyperPolar=""
+        self.m_strMaxVCDiffFlexibility=""
+        self.m_strMinVCDiffFlexibility="" 
 
-        #四则运算后的特征，阴阳基团之间的
         self.m_strDiffMinGap = ""
         self.m_strSumMinGap = ""
         self.m_strDiffAverGap = ""
@@ -578,29 +570,28 @@ class CDescriptor(CBaseObject):
         self.m_strSumAverFlexibility = ""
         self.m_strDiffMaxFlexibility = ""
         self.m_strSumMaxFlexibility = "9999"
-
-        #晶体相关，只计算但是不会输出，为了少改代码而己 20210122
+        
         self.m_strSpaceGroupName=""
         self.m_strSpaceGroupID=""
-        self.m_strLengthMinDiff = "" #晶胞参数最小的值
-        self.m_strLengthMaxDiff = "" #晶胞参数最大的值
-        self.m_strAngleMinDiff = "" #晶胞参数最小的值
-        self.m_strAngleMaxDiff = "" #晶胞参数最大的值
+        self.m_strLengthMinDiff = "" 
+        self.m_strLengthMaxDiff = "" 
+        self.m_strAngleMinDiff = "" 
+        self.m_strAngleMaxDiff = ""
         self.m_strCellVolume=""
 
-        self.m_strMinSymmFunc="9999999999999.99999" #真实晶体中Group的最小原子的SymmFunc
-        self.m_strAverSymmFunc="" #真实晶体中Group的总SymmFunc
-        self.m_strMaxSymmFunc="-9999999999999.99999" #真实晶体中Group最大原小孩子的SymmFunc
+        self.m_strMinSymmFunc="9999999999999.99999"
+        self.m_strAverSymmFunc="" 
+        self.m_strMaxSymmFunc="-9999999999999.99999" 
 
-        self.m_strAverFlexibility="" #真实晶体中Group的平均Flexibility
-        self.m_strTotalFlexibility="" #真实晶体中Group的总Flexibility
-        self.m_strBondNum1T1_5 = "0" #键长从1到1.5的个数
-        self.m_strBondNum1_5T2 = "0" #键长从1.5到2的个数
-        self.m_strBondNum2T2_8 = "0" #键长从2到2.8的个数
+        self.m_strAverFlexibility="" 
+        self.m_strTotalFlexibility="" 
+        self.m_strBondNum1T1_5 = "0" 
+        self.m_strBondNum1_5T2 = "0" 
+        self.m_strBondNum2T2_8 = "0" 
 
-        self.m_strBandGap="" #与特定计算水平有关
-        self.m_strBiRefracIndex=""#与特定计算水平和波长有关
-        self.m_strMaxDij=""#与特定计算水平和波长有关
+        self.m_strBandGap="" 
+        self.m_strBiRefracIndex=""
+        self.m_strMaxDij=""
 
     @staticmethod
     def joinTitle(strBreak):
@@ -644,7 +635,6 @@ class CDescriptor(CBaseObject):
         strLine = strLine + "strAverDensity" + strBreak
         strLine = strLine + "strMaxDensity" + strBreak
 
-        #group基本的，属于同一类
         strLine = strLine + "strNegaMinGap" + strBreak
         strLine = strLine + "strNegaAverGap" + strBreak
         strLine = strLine + "strNegaMaxGap" + strBreak
@@ -694,7 +684,6 @@ class CDescriptor(CBaseObject):
         strLine = strLine + "strAverPosiFlexibility" + strBreak
         strLine = strLine + "strMaxPosiFlexibility" + strBreak
 
-        ##基团独自的扩展描述符
         # strLine = strLine + "strMaxNegaVolume" + strBreak
         # strLine = strLine + "strMaxPosiVolume" + strBreak
         strLine = strLine + "strAverNegaCharge" + strBreak
@@ -728,7 +717,6 @@ class CDescriptor(CBaseObject):
         # strLine = strLine + "strNegaMaxMinSumFlexibility" + strBreak
         # strLine = strLine + "strPosiMaxMinSumFlexibility" + strBreak
 
-        #虚拟晶体的信息
         # strLine = strLine + "strVCGap" + strBreak
         # strLine = strLine + "strMaxVCDiffDipoleTotal" + strBreak
         # strLine = strLine + "strMinVCDiffDipoleTotal" + strBreak
@@ -741,8 +729,6 @@ class CDescriptor(CBaseObject):
         # strLine = strLine + "strMaxVCDiffFlexibility" + strBreak
         # strLine = strLine + "strMinVCDiffFlexibility" + strBreak
 
-
-        #四则运算后的，所有尝试中均会拉低指标
         # strLine = strLine + "strDiffMinGap" + strBreak
         # strLine = strLine + "strSumMinGap" + strBreak
         # strLine = strLine + "strDiffAverGap" + strBreak
@@ -852,7 +838,6 @@ class CDescriptor(CBaseObject):
         strLine = strLine + self.m_strAverDensity + strBreak
         strLine = strLine + self.m_strMaxDensity + strBreak
 
-        #group同一类
         strLine = strLine + self.m_strNegaMinGap + strBreak
         strLine = strLine + self.m_strNegaAverGap + strBreak
         strLine = strLine + self.m_strNegaMaxGap + strBreak
@@ -902,7 +887,6 @@ class CDescriptor(CBaseObject):
         strLine = strLine + self.m_strAverPosiFlexibility + strBreak
         strLine = strLine + self.m_strMaxPosiFlexibility + strBreak
 
-        #阴阳基团各自的扩展描述符
         # strLine = strLine + self.m_strMaxNegaVolume + strBreak
         # strLine = strLine + self.m_strMaxPosiVolume + strBreak
         strLine = strLine + self.m_strAverNegaCharge + strBreak
@@ -936,7 +920,6 @@ class CDescriptor(CBaseObject):
         # strLine = strLine + self.m_strNegaMaxMinSumFlexibility + strBreak
         # strLine = strLine + self.m_strPosiMaxMinSumFlexibility + strBreak
 
-        #虚拟晶体，不同类
         # strLine = strLine + self.m_strVCGap + strBreak
         # strLine = strLine + self.m_strMaxVCDiffDipoleTotal + strBreak
         # strLine = strLine + self.m_strMinVCDiffDipoleTotal + strBreak
@@ -949,7 +932,6 @@ class CDescriptor(CBaseObject):
         # strLine = strLine + self.m_strMaxVCDiffFlexibility + strBreak
         # strLine = strLine + self.m_strMinVCDiffFlexibility + strBreak
 
-        #四则运算后
         # strLine = strLine + self.m_strDiffMinGap + strBreak
         # strLine = strLine + self.m_strSumMinGap + strBreak
         # strLine = strLine + self.m_strDiffAverGap + strBreak
@@ -1018,7 +1000,7 @@ class CDescriptor(CBaseObject):
         strLine = strLine + self.m_strMaxDij + strBreak
         return strLine
 
-#vdW表面ESP的描述符
+#Descriptor for vdW surface ESP
 class CvdWESPDescriptor(CBaseObject):
     def __init__(self,strID):
         CBaseObject.__init__(self, strID)
@@ -1033,10 +1015,10 @@ class CvdWESPDescriptor(CBaseObject):
         self.m_strGlobalMin = "-999999.99999"
         self.m_strGlobalMax = "999999.99999"
         self.m_strTotalVar = "999999.99999"
-        self.m_strMinimaNum = "0" #小于某个值的极小点个数
-        self.m_strMaximaNum = "0" #大于某个值的极大点个数
-        self.m_strMinimaSum = "0.0" #小于某个值的极小点的和
-        self.m_strMaximaSum = "0.0" #大于某个值的极大点的和
+        self.m_strMinimaNum = "0"
+        self.m_strMaximaNum = "0"
+        self.m_strMinimaSum = "0.0" 
+        self.m_strMaximaSum = "0.0"
 
     @staticmethod
     def joinTitle(strBreak):
@@ -1077,7 +1059,8 @@ class CvdWESPDescriptor(CBaseObject):
 
         return strLine
 
-#vdW表面ESP的QSAR相关描述符, J. Phys. Chem. A 1999, 103, 1853-1856
+#QSAR-related descriptors for vdW surface ESPs
+#J. Phys. Chem. A 1999, 103, 1853-1856
 class CvdWESPQSARDescriptor(CBaseObject):
     def __init__(self,strID):
         CBaseObject.__init__(self, strID)
@@ -1105,12 +1088,12 @@ class CvdWESPQSARDescriptor(CBaseObject):
 
         return strLine
 
-#小分子溶剂化能描述符
+#Small molecule solvation energy descriptor
 class CSolvDescriptor(CBaseObject):
     def __init__(self,strID):
         CBaseObject.__init__(self, strID)
 
-        self.m_listEleRatio=[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0] #不同原子所占比例，H,C,N,O,F,P,S,Cl,Br,I
+        self.m_listEleRatio=[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0] #Proportion of different atoms: H,C,N,O,F,P,S,Cl,Br,I
 
         self.m_strSCFEner = "999999.99999" #SCF Done:  E(RB3LYP)
         self.m_strSCFKE = "999999.99999" #KE= 2.660105974559D+02 PE=-1.728616267669D+03
@@ -1120,21 +1103,21 @@ class CSolvDescriptor(CBaseObject):
         self.m_strDipole="999999.99999"
         self.m_strAnisoPolar="999999.99999"
 
-        self.m_listHarmonicFreq=[] #Harmonic frequencies，最高的3个
+        self.m_listHarmonicFreq=[] #Harmonic frequencies, TOP3
         self.m_strZeroPointEner="999999.999" # Zero-point vibrational energy
 
-        self.m_nShellNum = 20 #总共20个Shell
+        self.m_nShellNum = 20 #20 shells in total
         self.m_listMaxESPShells=[]
         self.m_listMinESPShells=[]
         self.m_listAverESPShells=[]
-        self.m_listVarESPShells=[] #方差
-        # self.m_listTMomESPShells=[] #三阶中心距
-        # self.m_listFMomESPShells=[] #四阶中心距
-        self.m_listSkewESPShells=[] #偏度
-        self.m_listPeakESPShells=[] #峰度
-        # self.m_listTotDenESPShells=[] #在球面上的整体密度
-        self.m_listSmallESPRatioShells=[] #在球面上的ESP小于0.001的点的比例
-        self.m_listPowerSpectrumShells=[] #在当前球面上的平方谱，二维数组
+        self.m_listVarESPShells=[] 
+        # self.m_listTMomESPShells=[]
+        # self.m_listFMomESPShells=[]
+        self.m_listSkewESPShells=[] 
+        self.m_listPeakESPShells=[] 
+        # self.m_listTotDenESPShells=[]
+        self.m_listSmallESPRatioShells=[]
+        self.m_listPowerSpectrumShells=[]
         self.m_strVdWSurfaceArea="999999.99999"
 
     @staticmethod
@@ -1176,7 +1159,6 @@ class CSolvDescriptor(CBaseObject):
             # strLine = strLine + "strTotDenESPShell%d"%(nIndex) + strBreak
             strLine = strLine + "strSmallESPRatioShell%d"%(nIndex) + strBreak
 
-            #20为球谐函数展开时的lmax
             lmax = 7
             for nSubIndex in range(0, lmax+1):
                 strLine = strLine + "strPowerSpectrum%dShells%d"%(nSubIndex,nIndex) + strBreak
@@ -1201,7 +1183,7 @@ class CSolvDescriptor(CBaseObject):
 
         nFreqNum = len(self.m_listHarmonicFreq)
         if nFreqNum < 3:
-            print("频率个数小于3")
+            print("Number of frequencies less than 3")
 
         for nIndex in range(nFreqNum-1, nFreqNum-4, -1):
             if nFreqNum < 3:
@@ -1223,7 +1205,6 @@ class CSolvDescriptor(CBaseObject):
             # strLine = strLine + self.m_listTotDenESPShells[nIndex] + strBreak
             strLine = strLine + self.m_listSmallESPRatioShells[nIndex] + strBreak
 
-            #20为球谐函数展开时的lmax
             for nSubIndex in range(0, len(self.m_listPowerSpectrumShells[nIndex])):
                 strLine = strLine + self.m_listPowerSpectrumShells[nIndex][nSubIndex] + strBreak
 
@@ -1232,10 +1213,10 @@ class CSolvDescriptor(CBaseObject):
         return strLine
 
 
-#训练的测试集结果
-#strID表示二值化拆分点
-#strName表示不平衡分类时处理方程
-#m_strThreshold表示进行特征筛选时的准确率门槛
+#Test set results for training
+#strID denotes binarized split point
+#strName denotes the processing equation for unbalanced classification
+#m_strThreshold denotes the accuracy threshold when performing feature filtering
 class CPredictResultObject(CBaseObject):
     def __init__(self,strID):
         CBaseObject.__init__(self, strID)
@@ -1245,7 +1226,7 @@ class CPredictResultObject(CBaseObject):
         self.m_arrPredictProba = ""
 
 #--------------------------------------------------------------------------------------------------#
-#qm4d中所有的原子信息，可以从pdb，psf，sxyz中获取信息
+#All atomic information in qm4d that can be retrieved from pdb, psf, sxyz
 class CQm4dAtom(CBaseObject):
     def __init__(self,strID):
         CBaseObject.__init__(self,strID)
@@ -1253,7 +1234,7 @@ class CQm4dAtom(CBaseObject):
         self.m_strChain = ""
         self.m_strResidueID = ""
         self.m_strResidueName = ""
-        self.m_strPrmType = "" #参数文件中的类型
+        self.m_strPrmType = ""
         self.m_strX = ""
         self.m_strY = ""
         self.m_strZ = ""
@@ -1262,12 +1243,12 @@ class CQm4dAtom(CBaseObject):
         self.m_strTempFactor = "0.00"
         self.m_strElement = ""
         self.m_strAtomMass = ""
-        self.m_strTinkerClass = "" #Tinker中的classID
+        self.m_strTinkerClass = "" #classID in Tinker
 
     def addPDBInfo(self, strInputLine):
         strLine = strInputLine.strip()
         strLine = strLine.strip("\n")
-        strLine = ' '.join(strLine.split()) #处理多个空格间隔的情况
+        strLine = ' '.join(strLine.split())
         listItems = strLine.split()
         if (len(listItems) < 11): #change
             print("Error：%s"%(strLine))
@@ -1280,7 +1261,7 @@ class CQm4dAtom(CBaseObject):
         self.m_strChain = listItems[4][0]
         self.m_strResidueID = listItems[5]
         if self.m_strResidueID.find(".") > -1:
-            print("注意，列数可能不正确")
+            print("Note: the number of columns may not be correct")
         self.m_strX = listItems[6]
         self.m_strY = listItems[7]
         self.m_strZ = listItems[8]
@@ -1288,7 +1269,6 @@ class CQm4dAtom(CBaseObject):
         self.m_strTempFactor = "0.00" #listItems[10]
         #self.m_strElement = listItems[11]
 
-    #注意，忽略了链的结尾
     def joinToPDBString(self):
         strLine = "%-6s"%(self.m_strStart) #1-6
         strLine += "%5s"%(self.m_strID) #7-11
@@ -1313,7 +1293,7 @@ class CQm4dAtom(CBaseObject):
     def addPsfInfo(self, strInputLine):
         strLine = strInputLine.strip()
         strLine = strLine.strip("\n")
-        strLine = ' '.join(strLine.split()) #处理多个空格间隔的情况
+        strLine = ' '.join(strLine.split())
         listItems = strLine.split()
         if (len(listItems) < 8):
             print("Error input in addPsfInfo!")
@@ -1337,7 +1317,7 @@ class CQm4dAtom(CBaseObject):
     def addSxyzInfo(self, strInputLine):
         strLine = strInputLine.strip()
         strLine = strLine.strip("\n")
-        strLine = ' '.join(strLine.split()) #处理多个空格间隔的情况
+        strLine = ' '.join(strLine.split())
         listItems = strLine.split()
         if (len(listItems) < 8):
             print("Error input in addSxyzInfo!")
@@ -1376,7 +1356,7 @@ class CQm4dAtom(CBaseObject):
     def addXyzInfo(self, strInputLine):
         strLine = strInputLine.strip()
         strLine = strLine.strip("\n")
-        strLine = ' '.join(strLine.split()) #处理多个空格间隔的情况
+        strLine = ' '.join(strLine.split())
         listItems = strLine.split()
         if (len(listItems) < 4):
             print("Error input in addSxyzInfo!")
@@ -1390,7 +1370,7 @@ class CQm4dAtom(CBaseObject):
     def addGroInfo(self, strInputLine):
         strLine = strInputLine.strip()
         strLine = strLine.strip("\n")
-        strLine = ' '.join(strLine.split()) #处理多个空格间隔的情况
+        strLine = ' '.join(strLine.split())
         listItems = strLine.split()
         if (len(listItems) < 6):
             print("Error input in addGroInfo!")
@@ -1419,10 +1399,10 @@ class CQm4dAtom(CBaseObject):
 
     def getTinkerClass(self):
 
-        #目前功能还有问题
-
-        # charmm22cmap.prm中原子类型
-        # 部分类型如H,HB,HR3,CT1等有多个值，在此简化为直接取第一个值。目标只是计算GB能
+        # There are still problems with the current functionality
+        # Atomic types in charmm22cmap.prm
+        # Some types such as H,HB,HR3,CT1 have multiple values, here it is simplified to take the first value directly. 
+        # The goal is just to calculate the GB energy
         listCharmm = ["HA","HP","H","HB","HC","H","HR1","HR2","HR3","HS",
                       "C","CA","CC","CT1","CT2","CT3","CP1","CP2","CP3","CH1",
                       "CH2","CY","CPT","CT","NH1","NH2","NH3","N","NP","NR1",
@@ -1433,7 +1413,6 @@ class CQm4dAtom(CBaseObject):
                       45,50,52,62,63,64,65,66,67,68,
                       69,70,71,72,74,76,78,80,82]
 
-        #小分子部分
         dictOther = {}
         dictOther["OR"] = "OH1"
         dictOther["O2CM"] = "OC"
