@@ -1,6 +1,6 @@
 # multilevelDescriptors
 ## Introduction
-A repository to easily construct the multilevel descriptors for nonlinear optical (NLO) crystals
+A repository to easily construct the multilevel descriptors for nonlinear optical (NLO) crystals.
 
 The first-level features consist of the basic properties of atoms in the chemical composition of NLO crystals, for example, the Pauling electronegativity, atomic mass and the difference of d and f electrons between the atom and the noble gas in the preceding element period.
 
@@ -18,7 +18,7 @@ In particular, almost all of the ML models we have trained that only involve the
 
 Please refer the following publication for more details: 
 
-[J. Phys. Chem. C 2021, 125, 25175−25188](https://doi.org/10.1021/acs.jpcc.1c06049)
+[Zhang, Z.-Y.; Liu, X.; Shen, L.; Chen, L.; Fang, W.-H. Machine Learning with Multilevel Descriptors for Screening of Inorganic Nonlinear Optical Crystals. J. Phys. Chem. C 2021, 125 (45), 25175–25188.](https://doi.org/10.1021/acs.jpcc.1c06049)
 
 ## Deployment
 To successfully obtain multilevel descriptors, please:
