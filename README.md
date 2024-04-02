@@ -20,7 +20,7 @@ Please refer the following publication for more details:
 
 [J. Phys. Chem. C 2021, 125, 25175−25188](https://doi.org/10.1021/acs.jpcc.1c06049)
 
-## Examples
+## Deployment
 To successfully obtain multilevel descriptors, please:
 
 (1)Download this repository and confirm your path. Run the code in python with numpy library installed.
@@ -39,7 +39,7 @@ For example:
 
   1973,,,,,,,,Na2O,OH;H2O;BO3,(Na(H2O))2(B5O8(OH)),,,,,,,,,
 
-(3)!!!Double-check the path settings in each script before running \features\main.py to generate features. Note that line xx in \features\objects.py, line xx in \features\featureInfo.py and line xx in \features\crystalInfo.py are related to the file path or naming. The output features are accessible in feature-out.csv.
+(3)!!!Double-check the path settings in each script before running \features\main.py to generate features. Note that line 6 in \features\objects.py, line 526 in \features\featureInfo.py and line 497 in \features\crystalInfo.py are related to the file path or naming. The output features are accessible in feature-out.csv.
 
 ## Main Developers
 Zhan-Yun Zhang
