@@ -1,4 +1,4 @@
-# 读取所有阴阳基团的HOMO，LUMO，偶极矩等
+# Read HOMO, LUMO, dipole moments, etc. for all cathode and anode groups
 import math
 import os
 import objects
@@ -6,12 +6,11 @@ import method
 import numpy as np
 
 
-# 获取out文件中的所有键
+# Get all the bonds in the out file
 def getBondsFromOutFile(strFile, listElementInfo):
 
     listBonds = []
 
-    #获取所有原子
     outFile = open(strFile,"r")
     outFile.seek(0,0)
     nTitleLines = 0
@@ -22,7 +21,7 @@ def getBondsFromOutFile(strFile, listElementInfo):
         if not strLine:
             break
 
-        strLine = ' '.join(strLine.split()) #处理多个空格间隔的情况
+        strLine = ' '.join(strLine.split())
         if 'Input orientation:' in strLine:
             bReadCoord = True
             nTitleLines = 4
@@ -35,31 +34,28 @@ def getBondsFromOutFile(strFile, listElementInfo):
         if bReadCoord:
             listTmpInfos = strLine.split(" ")
 
-            #第一位必须为数字，否则读取结束
+            #The first digit must be a number or the read ends
             if not listTmpInfos[0].isnumeric():
                 break
 
             curAtom = objects.CAtom(listTmpInfos[1])
-            curAtom.m_strName = listTmpInfos[1] #在getBondsFromAtoms函数中会被修改
+            curAtom.m_strName = listTmpInfos[1] 
             curAtom.m_strX = listTmpInfos[3]
             curAtom.m_strY = listTmpInfos[4]
             curAtom.m_strZ = listTmpInfos[5]
             listAtoms.append(curAtom)
 
-    #计算所有键,通过原子类型和距离进行过滤
+    #Calculate all bonds, filter by atom type and distance
     listBonds = method.getBondsFromAtoms(listAtoms, listElementInfo)
     return listBonds
 
 
-#计算bondValencePara
+#Calculate bondValencePara
 def calFlexibility(listGroupInfo,listElementInfo, isNega):
-    #选择out文件所在目录
-    strPolarPath = "D:\Data/posi-out-polar/"
+    strPolarPath = "PATH/TO/posi-out-polar/"
     if isNega:
-        strPolarPath = "D:\Data/nega-out-polar/"
+        strPolarPath = "PATH/TO/nega-out-polar/"
 
-    #获取out文件中所有原子
-    #遍历文件夹中所有文件
     listfile = os.listdir(strPolarPath)
     for curFile in listfile:
         strFileName = curFile.strip(".out")
@@ -67,7 +63,6 @@ def calFlexibility(listGroupInfo,listElementInfo, isNega):
         if not curFile.endswith("out"):
             continue
 
-        #获得当前文件对应的已经创建的Group类
         nGroupIndex = -1
         for item in listGroupInfo:
             nGroupIndex = nGroupIndex + 1
@@ -76,23 +71,19 @@ def calFlexibility(listGroupInfo,listElementInfo, isNega):
         if nGroupIndex < 0:
             break
 
-        #获取所有键
         listBonds = getBondsFromOutFile(curFile, listElementInfo)
 
-        #计算所有键相关的Flexibility，
         listFlexibilities = []
         listBondLengths = []
         for curBond in listBonds:
             listFlexibilities.append(float(curBond.m_strFlexibility))
             listBondLengths.append(float(curBond.m_strLength))
 
-        #平均键长
-        dMeanBondLength = 152 #默认是O的，单位pm。1埃=100pm
+        dMeanBondLength = 152 #default: 0 (pm)
         if len(listBondLengths) > 0:
             dMeanBondLength = np.mean(listBondLengths) * 100
         dVolume = (4 * math.pi * dMeanBondLength * dMeanBondLength * dMeanBondLength) / 3
 
-        #更新Group中的相应变量
         nFlexNum = len(listFlexibilities)
         if nFlexNum == 0:
             listGroupInfo[nGroupIndex].m_strAverFlexibility = "0.0"
@@ -107,7 +98,7 @@ def calFlexibility(listGroupInfo,listElementInfo, isNega):
     return  listGroupInfo
 
 
-#从Gaussian输出文件中直接获取GroupInfo,#获得HOMO，LUMO
+# Get GroupInfo directly from Gaussian output file, # Get HOMO, LUMO
 def readEnergyFromOut(strPath):
 
     listAlphaOcc = []
@@ -115,7 +106,6 @@ def readEnergyFromOut(strPath):
     listBetaOcc = []
     listBetaVirt = []
 
-    #遍历文件夹中所有文件
     listGroupInfo = []
     listfile = os.listdir(strPath)
     for curFile in listfile:
@@ -148,7 +138,6 @@ def readEnergyFromOut(strPath):
             elif 'Beta virt. eigenvalues' in strLine:
                 listBetaVirt = listBetaVirt + strLine.split(' ')
 
-        #检查Alpha电子的
         strMaxOcc = "-999999"
         listAlphaOcc.reverse()
         for strEnergy in listAlphaOcc:
@@ -158,7 +147,6 @@ def readEnergyFromOut(strPath):
                 strMaxOcc = strEnergy
                 break
 
-        #注意，虚轨道不需要反转
         strMinVirt = "999999"
         for strEnergy in listAlphaVirt:
             strEnergy = strEnergy.strip()
@@ -171,7 +159,6 @@ def readEnergyFromOut(strPath):
         curGroup.m_strLumo = strMinVirt
         curGroup.m_strLumoHomo = str(float(strMinVirt) - float(strMaxOcc))
 
-        #检查Beta电子的
         strMaxOcc = "-999999"
         listBetaOcc.reverse()
         for strEnergy in listBetaOcc:
@@ -194,7 +181,7 @@ def readEnergyFromOut(strPath):
             curGroup.m_strLumo = strMinVirt
             curGroup.m_strLumoHomo = str(float(strMinVirt) - float(strMaxOcc))
 
-        #由Hartree转为eV
+        #Hartree-->eV
         curGroup.m_strHomo = str(float(curGroup.m_strHomo) * 27.2116)
         curGroup.m_strLumo = str(float(curGroup.m_strLumo) * 27.2116)
         curGroup.m_strLumoHomo = str(float(curGroup.m_strLumoHomo) * 27.2116)
@@ -206,18 +193,16 @@ def readEnergyFromOut(strPath):
     return listGroupInfo
 
 
-#从Gaussian输出文件中直接获取GroupInfo,#获得偶极矩，极化率，超极化率等
+#Get GroupInfo directly from Gaussian output file
+#dipole moment, polarizability, hyperpolarizability, etc
 def readDiPoleAndPolarFromOut(strPath, listGroupInfo):
 
-    #Group应该在readEnergyAndDiPoleFromOut中被创建
     if len(listGroupInfo) < 1:
         return []
 
-    #遍历文件夹中所有文件
     listfile = os.listdir(strPath)
     for curFile in listfile:
 
-        #获得当前文件对应的已经创建的类
         nIndex = -1
         strFileName = curFile.strip(".out")
         for item in listGroupInfo:
@@ -241,10 +226,9 @@ def readDiPoleAndPolarFromOut(strPath, listGroupInfo):
             if not strLine:
                 break
 
-            #处理多个空格分隔的情况
             strLine = ' '.join(strLine.split())
 
-            #从Population analysis using the SCF density行后开始读取
+            #Read after the line: Population analysis using the SCF density
             if nIsStartRead < 1 and 'Population analysis using the SCF density' in strLine:
                 nIsStartRead = 1
                 continue
@@ -254,17 +238,17 @@ def readDiPoleAndPolarFromOut(strPath, listGroupInfo):
 
             if nIsReadInputOrient > 0:
 
-                # 读取偶极矩，单位Debye
+                # Dipole moment(Debye)
                 if 'Dipole moment (field-independent basis, Debye)' in strLine:
                     nIsDiPole = 1
                     continue
 
-                # 读取四极矩，单位Debye/Ang
+                # Quadrupole moment(Debye/Ang)
                 if 'Quadrupole moment (field-independent basis, Debye-Ang)' in strLine:
                     nIsQuadrupole = 1
                     continue
 
-                #获得计算中采用的频率,由Hartree转为nm
+                #Frequencies(Hartree-->nm)
                 if 'Frequencies=' in strLine:
                     listTmpInfo = strLine.split(' ')
                     del listTmpInfo[0]
@@ -287,20 +271,20 @@ def readDiPoleAndPolarFromOut(strPath, listGroupInfo):
 
                 if nIsDiPole == 1:
                     if 'Tot=' in strLine:
-                        strLine = strLine.replace("D","E")#Gaussian中的指数表示转为E
+                        strLine = strLine.replace("D","E")#The exponential representation in Gaussian is converted to E
                         listTmpInfo = strLine.split(" ")
                         listGroupInfo[nIndex].m_strDipoleTotal = listTmpInfo[7]
                         nIsDiPole = -1
 
                 if nIsQuadrupole == 1:
                     if 'XX=' in strLine:
-                        strLine = strLine.replace("D","E")#Gaussian中的指数表示转为E
+                        strLine = strLine.replace("D","E")
                         listTmpInfo = strLine.split(" ")
                         listGroupInfo[nIndex].m_strQuadrupoleXX = listTmpInfo[1]
                         listGroupInfo[nIndex].m_strQuadrupoleYY = listTmpInfo[3]
                         listGroupInfo[nIndex].m_strQuadrupoleZZ = listTmpInfo[5]
                     elif 'XY' in strLine:
-                        strLine = strLine.replace("D","E")#Gaussian中的指数表示转为E
+                        strLine = strLine.replace("D","E")
                         listTmpInfo = strLine.split(" ")
                         listGroupInfo[nIndex].m_strQuadrupoleXY = listTmpInfo[1]
                         listGroupInfo[nIndex].m_strQuadrupoleXZ = listTmpInfo[3]
@@ -308,7 +292,7 @@ def readDiPoleAndPolarFromOut(strPath, listGroupInfo):
                         nIsQuadrupole = 0
 
                 if nIsAlpha == 1:
-                    strLine = strLine.replace("D","E")#Gaussian中的指数表示转为E
+                    strLine = strLine.replace("D","E")
                     listTmpInfo = strLine.split(" ")
                     if 'aniso' in strLine:
                         listGroupInfo[nIndex].m_listAnisoPolar.append(listTmpInfo[1])
@@ -318,7 +302,7 @@ def readDiPoleAndPolarFromOut(strPath, listGroupInfo):
                         nIsAlpha = 0
 
                 if nIsStaticBeta == 1:
-                    strLine = strLine.replace("D","E")#Gaussian中的指数表示转为E
+                    strLine = strLine.replace("D","E")
                     listTmpInfo = strLine.split(" ")
                     if 'x' in strLine and len(listTmpInfo[0]) < 3:
                         listGroupInfo[nIndex].m_listHyperPolarX.append(listTmpInfo[1])
@@ -330,7 +314,7 @@ def readDiPoleAndPolarFromOut(strPath, listGroupInfo):
                         nIsStaticBeta = 0
 
                 if nIsDynamicBeta == 1:
-                    strLine = strLine.replace("D","E")#Gaussian中的指数表示转为E
+                    strLine = strLine.replace("D","E")
                     listTmpInfo = strLine.split(" ")
                     if 'x' in strLine and len(listTmpInfo[0]) < 3:
                         listGroupInfo[nIndex].m_listHyperPolarX.append(listTmpInfo[1])
@@ -340,7 +324,7 @@ def readDiPoleAndPolarFromOut(strPath, listGroupInfo):
                         listGroupInfo[nIndex].m_listHyperPolarZ.append(listTmpInfo[1])
                     elif len(strLine) < 2:
                         nIsDynamicBeta = 0
-                        nIsReadInputOrient = 0 #到这就结束了，文本下面是偶极矩方向的值
+                        nIsReadInputOrient = 0 #End here
             else:
                 if 'Beta(0;0,0):' in strLine:
                     nIsStaticBeta = 1
@@ -351,7 +335,7 @@ def readDiPoleAndPolarFromOut(strPath, listGroupInfo):
                     continue
 
                 if nIsStaticBeta == 1:
-                    strLine = strLine.replace("D","E")#Gaussian中的指数表示转为E
+                    strLine = strLine.replace("D","E")
                     listTmpInfo = strLine.split(" ")
                     if '||' in strLine  and 'z' not in strLine and len(listTmpInfo[0]) < 3:
                         listGroupInfo[nIndex].m_listVectorHyperPolar.append(listTmpInfo[1])
@@ -359,44 +343,42 @@ def readDiPoleAndPolarFromOut(strPath, listGroupInfo):
                         nIsStaticBeta = 0
 
                 if nIsDynamicBeta == 1:
-                    strLine = strLine.replace("D","E")#Gaussian中的指数表示转为E
+                    strLine = strLine.replace("D","E")
                     listTmpInfo = strLine.split(" ")
                     if '||' in strLine and 'z' not in strLine and len(listTmpInfo[0]) < 3:
                         listGroupInfo[nIndex].m_listVectorHyperPolar.append(listTmpInfo[1])
                     elif len(strLine) < 2:
                         nIsDynamicBeta = 0
-                        break #读取结束
+                        break
 
         file.close()
 
     return listGroupInfo
 
 
-#从Gaussian输出文件中直接获取GroupInfo
+#Directly get GroupInfo from Gaussian output files
 def readGroupFromOutFiles(listElementInfo, isNega):
-    #选择out文件所在目录
-    strEnergyPath = "D:\Data/posi-out-energy/"
-    strPolarPath = "D:\Data/posi-out-polar/"
+    strEnergyPath = "PATH/TO/posi-out-energy/"
+    strPolarPath = "PATH/TO/posi-out-polar/"
     if isNega:
-        strEnergyPath = "D:\Data/nega-out-energy/"
-        strPolarPath = "D:\Data/nega-out-polar/"
+        strEnergyPath = "PATH/TO/nega-out-energy/"
+        strPolarPath = "PATH/TO/nega-out-polar/"
 
     listGroupInfo = readEnergyFromOut(strEnergyPath)
     listGroupInfo = readDiPoleAndPolarFromOut(strPolarPath, listGroupInfo)
 
-    #计算每个Group的bondValencePara和Flexibility
+    #Calculate the bondValencePara and Flexibility for each Group
     listGroupInfo = calFlexibility(listGroupInfo,listElementInfo, isNega)
 
-    #计算每个Group的四极矩各向异性，极化率
     nIndex = -1
     for item in listGroupInfo:
         nIndex = nIndex + 1
-        listGroupInfo[nIndex].check() #校正
+        listGroupInfo[nIndex].check()
         listGroupInfo[nIndex].calDerivatives()
 
     return listGroupInfo
 
-#从完整的文本中直接获取GroupInfo
+#Get the GroupInfo directly from the full text
 def readPostiveGroupInfo(strFile):
     listGroupInfo = []
     file = open(strFile,"r")
@@ -443,10 +425,10 @@ def readPostiveGroupInfo(strFile):
     return listGroupInfo
 
 
-#从txt文件中读取所有Group相关信息
-#可以先用readGroupFromOutFiles从out文件中读取，补充完整后现用此函数读取
+#Read all the information about the Group from the txt file.
+#One can use readGroupFromOutFiles to read from the out file first, 
+#and then use this function to read the information after it is complete.
 def readAllGroupInfo():
-    #选择out文件所在目录
     strPositiveFile = objects.BASISDIR + "positive-group-in.csv"
     listPosiGroups = readPostiveGroupInfo(strPositiveFile)
     strPositiveFile = objects.BASISDIR + "negative-group-in.csv"
@@ -454,7 +436,7 @@ def readAllGroupInfo():
 
     return listNegaGroups,listPosiGroups
 
-#保存所有的信息
+#Save all information
 def saveAllGroupInfo(listGroupInfo, isNega):
     strOutFile = objects.BASISDIR + "positive-group-out.csv"
     if isNega:
@@ -468,8 +450,7 @@ def saveAllGroupInfo(listGroupInfo, isNega):
         file.write("\n")
     file.close()
 
-
-#单独调用时将结果直接导出csv文件
+# Export results directly to a csv file when called individually
 if __name__ == '__main__':
     print('getGroupInfo')
 
