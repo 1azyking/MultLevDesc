@@ -1,16 +1,16 @@
 # multilevelDescriptors
-## Brief Introduction
+## Introduction
 A repository to easily construct the multilevel descriptors for nonlinear optical (NLO) crystals
 
 The first-level features consist of the basic properties of atoms in the chemical composition of NLO crystals, for example, the Pauling electronegativity, atomic mass and the difference of d and f electrons between the atom and the noble gas in the preceding element period.
 
 The second-level features are designed based on the fundamental structural groups in NLO crystals:
 
-(1)acid radicals (ARs) and metallic oxides (MOs) from the chemical compositions of crystals according to identical chemical valences were extracted;
+(1)Acid Radicals (ARs) and Metallic Oxides (MOs) from the chemical compositions of crystals according to identical chemical valences were extracted;
 
-(2)geometries of ARs and MOs were optimized, followed by further calculations on total dipole moments, anisotropic quadrupole moments, anisotropic dipole polarizabilities and total first hyper-polarizabilities;
+(2)Geometries of ARs and MOs were optimized, followed by further calculations on total dipole moments, anisotropic quadrupole moments, anisotropic dipole polarizabilities and total first hyper-polarizabilities;
 
-(3)the features at the second level were finally collected from calculations on the isolated ARs and MOs to approximate the properties of anionic and cationic groups in crystals.
+(3)The features at the second level were finally collected from calculations on the isolated ARs and MOs to approximate the properties of anionic and cationic groups in crystals.
 
 The third-level features are derived from the crystal structure of materials, including space group, cell parameters, band gap and multiplicity of Wyckoff positions.
 
