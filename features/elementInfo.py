@@ -1,5 +1,4 @@
 # Retrieve all element information from an external file
-
 import os
 import sys
 sys.path.append("..") # Import from parent directory
