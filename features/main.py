@@ -1,4 +1,4 @@
-# 数据处理的主函数
+# The main function for data processing
 import elementInfo, featureInfo, crystalInfo, groupInfo
 
 from objects import BASISDIR
@@ -7,26 +7,22 @@ import numpy as np
 
 
 if __name__ == '__main__':
-    # 获取所有元素信息
+    # Retrieve all element information
     listElementInfo = elementInfo.readAllElementInfo()
 
-    # 获得Group
+    # Retrieve Group
     listNegaGroups = []
     listPosiGroups = []
-    # listNegaGroups = groupInfo.readGroupFromOutFiles(listElementInfo, True)  # 从out文件中获取所有Group的信息
-    # listPosiGroups = groupInfo.readGroupFromOutFiles(listElementInfo, False)  # 从out文件中获取所有Group的信息
+    # listNegaGroups = groupInfo.readGroupFromOutFiles(listElementInfo, True)  # Retrieve all Group information from the out file
+    # listPosiGroups = groupInfo.readGroupFromOutFiles(listElementInfo, False)  # Retrieve all Group information from the out file
     listNegaGroups, listPosiGroups = groupInfo.readAllGroupInfo()
     # groupInfo.saveAllGroupInfo(listNegaGroups, True)
     # groupInfo.saveAllGroupInfo(listPosiGroups, False)
 
-    # 获取所有NLO晶体信息
+    # Retrieve all NLO crystal information
     listCrystalInfo = crystalInfo.readAllCrystalInfo(listElementInfo)
     #crystalInfo.saveAllCrystalInfo(listCrystalInfo)
 
-    # 构建晶体对应的描述符
+    # Construct descriptors corresponding to crystals
     listFeatureInfo = featureInfo.createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCrystalInfo)
     featureInfo.saveAllFeatureInfo(listFeatureInfo)
-
-    # 预处理，二阶非线性系数与dij关系确定
-
-    # 训练，参见featureInfo等
