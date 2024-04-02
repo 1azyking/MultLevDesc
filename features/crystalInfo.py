@@ -360,11 +360,11 @@ def calBondAndFlexibility(strCifFile, listElementInfo, crystalObject):
 
             strCurAtomName = listTmpInfo[nAtomNameCol].strip("0123456789")
             if  strCurAtomName in listNegaAtoms:
-                curAtom = objects.CAtom(listTmpInfo[nAtomNameCol]) # Atom Name
+                curAtom = objects.CAtom(listTmpInfo[nAtomNameCol]) # Atomic name
                 curAtom.m_strName = strCurAtomName
-                curAtom.m_strX = listTmpInfo[nAtomXCol] # Atom Type
-                curAtom.m_strY = listTmpInfo[nAtomYCol] # Atom Type
-                curAtom.m_strZ = listTmpInfo[nAtomZCol] # Atom Type
+                curAtom.m_strX = listTmpInfo[nAtomXCol] # Atomic type
+                curAtom.m_strY = listTmpInfo[nAtomYCol] # Atomic type
+                curAtom.m_strZ = listTmpInfo[nAtomZCol] # Atomic type
                 if curAtom.m_strX == ".":
                     curAtom.m_strX = "0.0"
                 if curAtom.m_strY == ".":
