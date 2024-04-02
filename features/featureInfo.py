@@ -1,10 +1,10 @@
-#根据所有的信息创建featureInfo
+# Create featureInfo based on all the information available
 import math
 import random
 import objects
 import method
 
-#从完整的文本中直接获取
+# Directly extract from the complete text
 def readFeatureInfoFromTxt(strFile, listFeatureInfo):
     listFeatureInfo.clear()
     file = open(strFile,"r")
@@ -21,19 +21,21 @@ def readFeatureInfoFromTxt(strFile, listFeatureInfo):
     file.close()
 
 
-#从txt文件中读取所有Element相关信息
+# Read all Element-related information from a txt file
 def readAllFeatureInfo(listFeatureInfo):
-    #选择txt文件所在目录
+    # Select the directory where the txt file is located
     strFeatureFile = objects.BASISDIR + "feature-in.csv"
     readFeatureInfoFromTxt(strFeatureFile,listFeatureInfo)
 
 
-#根据信息创建所有Feature
+# Create all features based on the information
 def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCrystalInfo):
 
     listFeatureInfo = []
 
-    #根据过滤条件获得相应波长下的基团的极化率和超极化率，晶体的Gap和Dij
+    """Obtain the polarizability and hyperpolarizability of functional groups 
+    at corresponding wavelengths based on filtering conditions, 
+    as well as the Gap and Dij of the crystal."""
     dMinWaveLength = 999
     dMaxWaveLength = 1100
     # dMinWaveLength = -100
@@ -42,7 +44,7 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
     listBiRefLevelFilter = ["GGA","LDA","srLDA","EXP","HSE06","PBE0","SNLO","FIT"]
     listDijLevelFilter = ["GGA","LDA","srLDA","EXP","HSE06","PBE0","SNLO","FIT"]
 
-    #阴离子中的所有中心原子
+    # All central atoms in the anion
     listNegaAtom = ["Be","B",
                 "Al","Si","P",
                 "Ti","Ga","Ge","As",
@@ -50,13 +52,13 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
                 "Ta","W"]
 
     dictElements = {}
-    for curCrystal in listCrystalInfo: #每个晶体
+    for curCrystal in listCrystalInfo: # Each crystal
         curDescriptor = objects.CDescriptor(curCrystal.m_strID)
 
-        #首先创建元素相关描述符
+        # Firstly, create descriptors related to elements.
         dictElements.clear()
-        method.getElementFromString(curCrystal.getFormula(),dictElements) #晶体中所有的元素,key为元素，value为个数
-        for curElement in listElementInfo:#晶体中每个元素
+        method.getElementFromString(curCrystal.getFormula(),dictElements)  # All elements in the crystal, where the key represents the element and the value represents the count.
+        for curElement in listElementInfo:  # Each element in the crystal
             if curElement.m_strName not in dictElements.keys():
                 continue
             curNum = dictElements[curElement.m_strName]
@@ -130,7 +132,7 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
                 curDescriptor.m_strMaxDensity = curElement.m_strDensity
             curDescriptor.m_strAverDensity = str(float(curDescriptor.m_strAverDensity) + float(curElement.m_strDensity) * curNum)
 
-        #求一些平均值
+        # Calculate some averages
         nTotalNum = 0
         for index in dictElements.values():
             nTotalNum = nTotalNum + index
@@ -154,7 +156,7 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
         curDescriptor.m_strAverDUnfilledState = str(int(curDescriptor.m_strAverDUnfilledState)/nTotalNum)
         curDescriptor.m_strAverFUnfilledState = str(int(curDescriptor.m_strAverFUnfilledState)/nTotalNum)
 
-        #创建基团相关描述符
+        # Create descriptors related to functional groups
         for curGroupName in curCrystal.m_listNegativeGroups:
 
             nGroupIndex = -1
@@ -166,7 +168,7 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
                     break
 
             if not bIsOK:
-                print(curGroupName,"阴离子基团不存在")
+                print(curGroupName,"The AR does not exist.")
                 continue
 
             curNegaGroup = listNegaGroups[nGroupIndex]
@@ -189,7 +191,7 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
                 curDescriptor.m_strMaxNegaAnisoQuadrupole = curNegaGroup.m_strAnisoQuadrupole
             curDescriptor.m_strAverNegaAnisoQuadrupole = str(float(curDescriptor.m_strAverNegaDipoleTotal) + float(curNegaGroup.m_strAnisoQuadrupole))
 
-            #根据过滤条件获得相应波长下的极化率和超极化率
+            # Obtain polarizability and hyperpolarizability at the corresponding wavelengths based on filtering conditions.
             nIndex = -1
             for curFreq in curNegaGroup.m_listPolarFreq:
                 nIndex = nIndex + 1
@@ -228,11 +230,11 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
             curDescriptor.m_strTotalNegaCharge = str(float(curDescriptor.m_strTotalNegaCharge) + float(curNegaGroup.m_strCharge))
             curDescriptor.m_strTotalNegaMultiplicity = str(int(curDescriptor.m_strTotalNegaMultiplicity) + int(curNegaGroup.m_strMultiplicity))
 
-            #最大体积
+            # Max volumes
             if float(curDescriptor.m_strMaxNegaVolume) < float(curNegaGroup.m_strVolume):
                 curDescriptor.m_strMaxNegaVolume = curNegaGroup.m_strVolume
 
-        #设定值并求平均值
+        # Set values and calculate the averages.
         curLen = len(curCrystal.m_listNegativeGroups)
         curDescriptor.m_strNegaAverGap = str(float(curDescriptor.m_strNegaAverGap) / curLen)
         curDescriptor.m_strAverNegaDipoleTotal = str(float(curDescriptor.m_strAverNegaDipoleTotal) / curLen)
@@ -243,7 +245,7 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
         curDescriptor.m_strAverNegaFlexibility = str(float(curDescriptor.m_strTotalNegaFlexibility) / curLen)
         curDescriptor.m_strAverNegaCharge = str(float(curDescriptor.m_strTotalNegaCharge) / curLen)
 
-       #创建基团相关描述符
+       # Create descriptors related to cationic/anionic groups.
         for curGroupName in curCrystal.m_listPostiveGroups:
 
             nGroupIndex = -1
@@ -255,7 +257,7 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
                     break
 
             if not bIsOK:
-                print(curGroupName,"金属氧化物不存在")
+                print(curGroupName,"The MO does not exist")
                 continue
 
             curPosiGroup = listPosiGroups[nGroupIndex]
@@ -278,7 +280,7 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
                 curDescriptor.m_strMaxPosiAnisoQuadrupole = curPosiGroup.m_strAnisoQuadrupole
             curDescriptor.m_strAverPosiAnisoQuadrupole = str(float(curDescriptor.m_strAverPosiDipoleTotal) + float(curPosiGroup.m_strAnisoQuadrupole))
 
-            #根据过滤条件获得相应波长下的极化率和超极化率
+            # Obtain polarizability and hyperpolarizability at the corresponding wavelengths based on filtering conditions.
             nIndex = -1
             for curFreq in curPosiGroup.m_listPolarFreq:
                 nIndex = nIndex + 1
@@ -318,11 +320,11 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
             curDescriptor.m_strTotalPosiCharge = str(float(curDescriptor.m_strTotalPosiCharge) + float(curPosiGroup.m_strCharge))
             curDescriptor.m_strTotalPosiMultiplicity = str(int(curDescriptor.m_strTotalPosiMultiplicity) + int(curPosiGroup.m_strMultiplicity))
 
-            #最大体积
+            # Max volume
             if float(curDescriptor.m_strMaxPosiVolume) < float(curPosiGroup.m_strVolume):
                 curDescriptor.m_strMaxPosiVolume = curPosiGroup.m_strVolume
 
-        #设定值并求平均值
+        # Set values and calculate the averages.
         curLen = len(curCrystal.m_listPostiveGroups)
         curDescriptor.m_strPosiAverGap = str(float(curDescriptor.m_strPosiAverGap) / curLen)
         curDescriptor.m_strAverPosiDipoleTotal = str(float(curDescriptor.m_strAverPosiDipoleTotal) / curLen)
@@ -333,7 +335,7 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
         curDescriptor.m_strAverPosiFlexibility = str(float(curDescriptor.m_strTotalPosiFlexibility) / curLen)
         curDescriptor.m_strAverPosiCharge = str(float(curDescriptor.m_strTotalPosiCharge) / curLen)
 
-        #添加阴阳基团的独自的扩展描述符
+        # Add unique extension descriptors for ARs/MOs.
         curDescriptor.m_strNegaMaxMinDiffGap = str(float(curDescriptor.m_strNegaMaxGap) - float(curDescriptor.m_strNegaMinGap))
         curDescriptor.m_strPosiMaxMinDiffGap = str(float(curDescriptor.m_strPosiMaxGap) - float(curDescriptor.m_strPosiMinGap))
         curDescriptor.m_strNegaMaxMinDiffDipoleTotal = str(float(curDescriptor.m_strMaxNegaDipoleTotal) - float(curDescriptor.m_strMinNegaDipoleTotal))
@@ -363,7 +365,8 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
         curDescriptor.m_strNegaMaxMinSumFlexibility = str(float(curDescriptor.m_strMaxNegaFlexibility) + float(curDescriptor.m_strMinNegaFlexibility))
         curDescriptor.m_strPosiMaxMinSumFlexibility = str(float(curDescriptor.m_strMaxPosiFlexibility) + float(curDescriptor.m_strMinPosiFlexibility))
 
-        #通过阴阳基团来构建虚拟晶体(VirtualCrystal,VC)的物理量,注意，此块处理的全部为阴阳基团之间的，不能为同类
+        # Construct physical quantities for the VirtualCrystal (VC) based on ARs/MOs. 
+        # Note that this section handles interactions exclusively between ARs/MOs; it cannot be within the same type.
         curDescriptor.m_strVCGap = float(curDescriptor.m_strNegaMinGap)
         dCurVCValue = float(curDescriptor.m_strPosiMinGap)
         if curDescriptor.m_strVCGap > dCurVCValue:
@@ -400,7 +403,7 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
         curDescriptor.m_strMaxVCDiffFlexibility = str(curDescriptor.m_strMaxVCDiffFlexibility)
         curDescriptor.m_strMinVCDiffFlexibility = str(math.fabs(float(curDescriptor.m_strMinNegaFlexibility) - float(curDescriptor.m_strMinPosiFlexibility)))
 
-        #基团相关基本描述符四则运算后
+        # Arithmetic results of basic descriptors related to AR/MO groups.
         curDescriptor.m_strDiffMinGap = str(float(curDescriptor.m_strNegaMinGap) - float(curDescriptor.m_strPosiMinGap))
         curDescriptor.m_strSumMinGap = str(float(curDescriptor.m_strNegaMinGap) + float(curDescriptor.m_strPosiMinGap))
         curDescriptor.m_strDiffAverGap = str(float(curDescriptor.m_strNegaAverGap) - float(curDescriptor.m_strPosiAverGap))
@@ -446,7 +449,7 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
         curDescriptor.m_strDiffMaxFlexibility = str(float(curDescriptor.m_strMaxNegaFlexibility) - float(curDescriptor.m_strMaxPosiFlexibility))
         curDescriptor.m_strSumMaxFlexibility = str(float(curDescriptor.m_strMaxNegaFlexibility) + float(curDescriptor.m_strMaxPosiFlexibility))
 
-        #添加晶体相关描述符
+        # Add descriptors related to crystals.
         curDescriptor.m_strSpaceGroupName = curCrystal.m_strSpaceGroupName
         curDescriptor.m_strSpaceGroupID = curCrystal.m_strSpaceGroupID
         curDescriptor.m_strLengthMinDiff = curCrystal.m_strLengthMinDiff
@@ -455,7 +458,7 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
         curDescriptor.m_strAngleMaxDiff = curCrystal.m_strAngleMaxDiff
         curDescriptor.m_strCellVolume = curCrystal.m_strVolume
 
-        #处理SymmFunc
+        # Process SymmFunc
         dTotalSymmFunc = 0.0
         for curAtom in curCrystal.m_listNegaAtoms:
             dTotalSymmFunc = dTotalSymmFunc + float(curAtom.m_strSymFunc)
@@ -468,7 +471,7 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
         else:
             curDescriptor.m_strAverSymmFunc = str(dTotalSymmFunc / len(curCrystal.m_listNegaAtoms))
 
-        #处理Flexibility和键长分布
+        # Process Flexibility and the dictribution of BondLength
         nBondNum1T1_5 = 0
         nBondNum1_5T2 = 0
         nBondNum2T2_8 = 0
@@ -494,9 +497,9 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
 
         if curCrystal.m_strGapLevel in listGapLevelFilter:
             curDescriptor.m_strBandGap = curCrystal.m_strBandGap
-            if curCrystal.m_strGapLevel == "GGA": #GGA计算的能隙要低50%左右，所以添加一个随机变量
+            if curCrystal.m_strGapLevel == "GGA": # Add a random variable due to the underestimation of GGA bandgaps
                 dCurBandGap = float(curCrystal.m_strBandGap)
-                #dCurBandGap = dCurBandGap + dCurBandGap * ( random.random() * 0.5 ) #返回 [0.0, 1.0) 范围内的下一个随机浮点数
+                #dCurBandGap = dCurBandGap + dCurBandGap * ( random.random() * 0.5 ) # Return the next random floating-point number in the range [0.0, 1.0)
                 #dCurBandGap = dCurBandGap + dCurBandGap * 0.5
                 curDescriptor.m_strBandGap = str(dCurBandGap)
         if curCrystal.m_strBiRefLevel in listBiRefLevelFilter:
@@ -518,7 +521,7 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
 
     return listFeatureInfo
 
-#保存所有的信息
+# Save all information
 def saveAllFeatureInfo(listFeatureInfo):
     strFeatureFile = objects.BASISDIR + "feature-out.csv"
     file = open(strFeatureFile,"a+")
@@ -526,7 +529,7 @@ def saveAllFeatureInfo(listFeatureInfo):
     for curFeature in listFeatureInfo:
         strCurLine = curFeature.joinToString(",")
         if "999.99" in strCurLine:
-            print(curFeature.m_strID ,"存在999.99")
+            print(curFeature.m_strID ,"999.99 exists")
             continue
 
         file.write("\n")
