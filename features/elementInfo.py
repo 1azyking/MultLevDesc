@@ -1,12 +1,12 @@
-#从外部文件中获得所有元素信息
+# Retrieve all element information from an external file
 
 import os
 import sys
-sys.path.append("..") #引入上级目录
+sys.path.append("..") # Import from parent directory
 import objects
 import method
 
-#从完整的文本中直接获取ElementInfo
+# Directly extract ElementInfo from the complete text
 def readElementInfoFromTxt(strFile):
     listElementInfo = []
     file = open(strFile,"r")
@@ -20,8 +20,8 @@ def readElementInfoFromTxt(strFile):
         if len(listInfos) < 20:
             continue
 
-        curElement = objects.CElementObject(listInfos[0]); #以原子序数
-        curElement.m_strName = listInfos[1]#以元素符号
+        curElement = objects.CElementObject(listInfos[0]); # By atomic number
+        curElement.m_strName = listInfos[1] # By element symbol
         curElement.m_strMass = listInfos[2]
         curElement.m_strPeriodNum = listInfos[3]
         curElement.m_strGroupNum = listInfos[4]
@@ -47,14 +47,14 @@ def readElementInfoFromTxt(strFile):
     return  listElementInfo
 
 
-#从txt文件中读取所有Element相关信息
+# Read all Element-related information from a txt file
 def readAllElementInfo():
-    #选择txt文件所在目录
+    # Select the directory where the txt file is located
     strElementFile = objects.BASISDIR + "public/element-in.csv"
     listElementInfo = readElementInfoFromTxt(strElementFile)
     return  listElementInfo
 
-#保存所有的信息
+# Save all information
 def saveAllElementInfo(listElementInfo):
     strElementFile = objects.BASISDIR + "element-out.csv"
     file = open(strElementFile,"a+")
