@@ -3,7 +3,7 @@
 import math
 import method
 
-BASISDIR = "PATA/TO/THE/REPO/"  # End with '/'
+BASISDIR = os.getcwd() + '\\'  # End with '\'
 
 # Parent class of all objects
 class CBaseObject:
