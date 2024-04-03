@@ -429,18 +429,18 @@ def readPostiveGroupInfo(strFile):
 #One can use readGroupFromOutFiles to read from the out file first, 
 #and then use this function to read the information after it is complete.
 def readAllGroupInfo():
-    strPositiveFile = objects.BASISDIR + "positive-group-in.csv"
+    strPositiveFile = objects.BASISDIR + "public/positive-group-in.csv"
     listPosiGroups = readPostiveGroupInfo(strPositiveFile)
-    strPositiveFile = objects.BASISDIR + "negative-group-in.csv"
+    strPositiveFile = objects.BASISDIR + "public/negative-group-in.csv"
     listNegaGroups = readPostiveGroupInfo(strPositiveFile)
 
     return listNegaGroups,listPosiGroups
 
 #Save all information
 def saveAllGroupInfo(listGroupInfo, isNega):
-    strOutFile = objects.BASISDIR + "positive-group-out.csv"
+    strOutFile = objects.BASISDIR + "public/positive-group-out.csv"
     if isNega:
-        strOutFile = objects.BASISDIR + "negative-group-out.csv"
+        strOutFile = objects.BASISDIR + "public/negative-group-out.csv"
     file = open(strOutFile,"a+")
     file.write("\n--------Groups---------------\n")
     file.write(objects.CGroupInfo.joinTitle(","))
