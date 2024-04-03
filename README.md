@@ -26,25 +26,29 @@ Please refer the following publication for more details:
 ## Deployment
 To successfully obtain multilevel descriptors, please:
 
-(1)Download this repository and confirm your path. Run the code in python with numpy library installed.
+(1)Download this repository and confirm your path. To run the code, a python environment with numpy library installed is indeed.
 
 (2)Custom the input file crystal-in.csv, where the input format for each crystal is:
 
-  ICSD ID ,,,,,,,, MO(s),AR(s),Chemical Formula ,,,,,,,,,
+  *ICSD ID ,,,,,,,, MO(s),AR(s),Chemical Formula ,,,,,,,,,*
 
 When there are more than one MO or AR, separate them with a semicolon.
 
 For example:
 
-  99,,,,,,,,Na2O,H2O;GeO4;Se,Na4(GeSe4)(H2O)14,,,,,,,,,
+  *99,,,,,,,,Na2O,H2O;GeO4;Se,Na4(GeSe4)(H2O)14,,,,,,,,,*
 
-  1725,,,,,,,,K2O,BO3;SO4;Cl,K(B(SO3Cl)4),,,,,,,,,
+  *1725,,,,,,,,K2O,BO3;SO4;Cl,K(B(SO3Cl)4),,,,,,,,,*
 
-  1973,,,,,,,,Na2O,OH;H2O;BO3,(Na(H2O))2(B5O8(OH)),,,,,,,,,
+  *1973,,,,,,,,Na2O,OH;H2O;BO3,(Na(H2O))2(B5O8(OH)),,,,,,,,,*
 
-You can refer the \example\crystal-in.csv for formatting guidance. Please move your customized crystal-in.csv to the current path (XXX/multilevelDescriptors-master/crystal-in.csv).
+You can refer the \example\crystal-in.csv for formatting guidance. Please do not lose any commas. Please make sure your customized crystal-in.csv is in the current path (XXX/multilevelDescriptors-master/crystal-in.csv).
 
-(3)!!!Double-check the path settings in each script before running \features\main.py to generate features. Note that line 6 in \features\objects.py, line 526 in \features\featureInfo.py and line 497 in \features\crystalInfo.py are related to the file path or naming. The output features are accessible in feature-out.csv.
+(3)Run the following code to obtain outputs:
+```
+python features\main.py
+```
+!!!If there is any bug, please double-check the path settings in each script before running the code. Note that *line 6 in \features\objects.py*, *line 526 in \features\featureInfo.py* and *line 497 in \features\crystalInfo.py* are related to the file path or naming. The output features are available in the feature-out.csv in the same path as the crystal-in.csv.
 
 ## Main Developers
 Zhan-Yun Zhang
