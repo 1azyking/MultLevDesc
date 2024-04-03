@@ -3,7 +3,7 @@
 import math
 import method
 
-BASISDIR = "PATA/TO/YOUR/DATA"
+BASISDIR = "PATA/TO/THE/REPO/"  # End with '/'
 
 # Parent class of all objects
 class CBaseObject:
