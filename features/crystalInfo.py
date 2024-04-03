@@ -494,7 +494,7 @@ def saveElementDistribution(listCrystalInfo,listElementInfo):
 # Read all Crystal-related information from a txt file
 def readAllCrystalInfo(listElementInfo):
     # Select the directory where the txt file is located
-    strCrystalFile = objects.BASISDIR + "crystal-in.csv"
+    strCrystalFile = objects.BASISDIR + "in_and_out/crystal-in.csv"
     listCrystalInfo = readCrystalInfoFromTxt(strCrystalFile)
 
     listCenterSpaceID = [2,10,11,12,13,14,15,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
@@ -541,7 +541,7 @@ def readAllCrystalInfo(listElementInfo):
 
 # Save all information
 def saveAllCrystalInfo(listCrystalInfo):
-    strCrystalFile = objects.BASISDIR + "crystal-out.csv"
+    strCrystalFile = objects.BASISDIR + "in_and_out/crystal-out.csv"
     file = open(strCrystalFile,"a+")
     file.write("\n--------Crystals---------------\n")
     for curCrystal in listCrystalInfo:
