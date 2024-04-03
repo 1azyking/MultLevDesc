@@ -1,4 +1,7 @@
 # multilevelDescriptors
+
+![image](https://github.com/1azyking/multilevelDescriptors/blob/master/public/Fig1.jpg)
+
 ## Introduction
 A repository to easily construct the multilevel descriptors for nonlinear optical (NLO) crystals.
 
