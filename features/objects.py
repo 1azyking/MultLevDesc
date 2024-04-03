@@ -2,6 +2,7 @@
 # To keep the format pure, all member variables in the class are string
 import math
 import method
+import os
 
 BASISDIR = os.getcwd() + '\\'  # End with '\'
 
