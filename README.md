@@ -39,6 +39,8 @@ For example:
 
   1973,,,,,,,,Na2O,OH;H2O;BO3,(Na(H2O))2(B5O8(OH)),,,,,,,,,
 
+You can refer the \example\crystal-in.csv for formatting guidance. Please move your customized crystal-in.csv to the current path (XXX/multilevelDescriptors-master/crystal-in.csv).
+
 (3)!!!Double-check the path settings in each script before running \features\main.py to generate features. Note that line 6 in \features\objects.py, line 526 in \features\featureInfo.py and line 497 in \features\crystalInfo.py are related to the file path or naming. The output features are accessible in feature-out.csv.
 
 ## Main Developers
