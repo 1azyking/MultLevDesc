@@ -24,7 +24,7 @@ def readFeatureInfoFromTxt(strFile, listFeatureInfo):
 # Read all Element-related information from a txt file
 def readAllFeatureInfo(listFeatureInfo):
     # Select the directory where the txt file is located
-    strFeatureFile = objects.BASISDIR + "feature-in.csv"
+    strFeatureFile = objects.BASISDIR + "in_and_out/feature-in.csv"
     readFeatureInfoFromTxt(strFeatureFile,listFeatureInfo)
 
 
@@ -523,7 +523,7 @@ def createAllFeatureInfo(listPosiGroups, listNegaGroups, listElementInfo, listCr
 
 # Save all information
 def saveAllFeatureInfo(listFeatureInfo):
-    strFeatureFile = objects.BASISDIR + "feature-out.csv"
+    strFeatureFile = objects.BASISDIR + "in_and_out/feature-out.csv"
     file = open(strFeatureFile,"a+")
     file.write(objects.CDescriptor.joinTitle(","))
     for curFeature in listFeatureInfo:
