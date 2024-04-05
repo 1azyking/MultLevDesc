@@ -1,4 +1,4 @@
-# Read HOMO, LUMO, dipole moments, etc. for all cathode and anode groups
+# Read HOMO, LUMO, dipole moments, etc. for all metallic oxides (MOs) and acid radicals (ARs)
 import math
 import os
 import objects
