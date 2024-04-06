@@ -48,7 +48,11 @@ You can refer the in_and_out\crystal-in-example.csv for formatting guidance. Ple
 ```
 python features\main.py
 ```
-!!!If there is any bug, please double-check the path settings in each script before running the code. Note that *line 6* in \features\objects.py, *line 526* in \features\featureInfo.py and *line 497* in \features\crystalInfo.py are related to the file path or naming. The output features are available in the in_and_out\feature-out.csv. The in_and_out\feature-out-example.csv is the output case corresponding to  the in_and_out\crystal-in-example.csv.
+
+__Note:__<br />
+If there is any bug, please double-check the path settings in each script before running the code. Note that *line 6* in \features\objects.py, *line 526* in \features\featureInfo.py and *line 497* in \features\crystalInfo.py are related to the file path or naming. The output features are available in the in_and_out\feature-out.csv. The in_and_out\feature-out-example.csv is the output case corresponding to  the in_and_out\crystal-in-example.csv.
+
+If any MO/AR groups are in the crystal-in.csv you uploaded but not in the public/postive-group-in.csv or negative-group-in.csv, please add the corresponding group information according to the format of the related file.
 
 ## Main Developers
 Zhan-Yun Zhang
